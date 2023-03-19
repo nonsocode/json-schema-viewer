@@ -53,7 +53,7 @@ const debounceDist = debounce(() => {
   clientsThatNeedToUpdate.forEach((ws: WebSocket) => {
     ws.send(MessageInterpreter.send({ type: UPDATE_REQUEST_MESSAGE }));
   });
-}, 200);
+}, 500);
 chokidar.watch(outDir).on("all", () => debounceDist());
 
 initReloadServer();

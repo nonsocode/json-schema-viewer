@@ -45,9 +45,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         content: resolve(pagesDir, "content", "index.ts"),
+        contentStyle: resolve(pagesDir, "content", "style.scss"),
         background: resolve(pagesDir, "background", "index.ts"),
-        popup: resolve(pagesDir, "popup", "index.html"),
-        options: resolve(pagesDir, "options", "index.html"),
       },
       watch: {
         include: ["src/**", "vite.config.ts"],
@@ -62,7 +61,7 @@ export default defineConfig({
           const { dir, name: _name } = path.parse(assetInfo.name);
           const assetFolder = dir.split("/").at(-1);
           const name = assetFolder + firstUpperCase(_name);
-          if (name === "componentsRoot") {
+          if (name === "contentStyle") {
             return `assets/css/contentStyle${cacheInvalidationKey}.chunk.css`;
           }
           return `assets/[ext]/${name}.chunk.[ext]`;
