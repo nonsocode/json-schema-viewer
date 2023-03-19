@@ -1,18 +1,12 @@
 import { useMemo } from "react";
 import jta from "json-to-ast";
-import { ObjectComponent } from "./object";
-import { ArrayComponent } from "./array";
-import { LiteralComponent } from "./literal";
-import { CommonValueProps } from "../types";
 import { Entry } from "./entry";
+import classnames from 'classnames/bind'
+import styles from './app.module.css'
+const cx = classnames.bind(styles)
 interface AppProps {
   jsonString: string;
 }
-const componentMap = {
-  Object: ObjectComponent,
-  Array: ArrayComponent,
-  Literal: LiteralComponent,
-};
 export default function App({ jsonString }: AppProps) {
   const tree = useMemo(() => {
     console.time();
@@ -23,16 +17,5 @@ export default function App({ jsonString }: AppProps) {
     return res;
   }, [jsonString]);
 
-  const defaultProps: CommonValueProps = { root: tree, isLast: true };
-  return <Entry />
-  switch (tree.type) {
-    case "Object":
-      return <ObjectComponent node={tree} {...defaultProps} />;
-    case "Array":
-      return <ArrayComponent node={tree} {...defaultProps} />;
-    case "Literal":
-      return <LiteralComponent node={tree} {...defaultProps} />;
-    default:
-      return <></>;
-  }
+  return <div className={cx('json-view-app')}><Entry root={tree} value={tree} isLast /></div>;
 }

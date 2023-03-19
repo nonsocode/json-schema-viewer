@@ -1,3 +1,36 @@
 .entry {
-  padding-block-start: 20px;
+  padding-inline-start: 3ch;
+  font-family: inherit;
+  position: relative;
+  line-height: 1.5rem;
+}
+
+.entry::before {
+  position: absolute;
+  top: 0;
+  botom: 0;
+  left: 4px;
+  border-left: 1px dashed #ccc;
+}
+
+.kv-separator {
+  color: #aaa;
+}
+
+.identifier {
+  color: #80bbff;
+}
+.expand-button {
+  appearance: none;
+  position: absolute;
+  top: 5px;
+  left: 1.5ch;
+  scale: 0.8;
+  transform-origin: 50% 50%;
+  padding: 0;
+  background: none;
+  border-top: 10px solid white;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  vertical-align: middle;
 }

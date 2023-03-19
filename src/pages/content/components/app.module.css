@@ -1,0 +1,9 @@
+/* @font-face{
+  font-family: 'ext-roboto-regular';
+  font-style: normal;
+  font-weight: normal;
+  src: url('chrome-extension://__MSG_@@extension_id__/assets/ttf/fontsRobotomono-regular.chunk.ttf'); 
+} */
+.json-view-app {
+  font-family: ext-roboto-regular, "fira mono", monospace;
+}

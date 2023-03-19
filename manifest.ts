@@ -28,6 +28,7 @@ const manifest: chrome.runtime.ManifestV3 = {
       resources: [
         "assets/js/*.js",
         "assets/css/*.css",
+        "assets/ttf/*.ttf",
         "icon-128.png",
         "icon-34.png",
       ],

@@ -1,11 +1,14 @@
-.object-opener,
-.object-closer {
-  color: white;
+.array {
+
 }
-.object-block {
+.array-opener, .array-closer  {
+  color: white
+}
+
+.array-block {
   position: relative;
 }
-.object-block:before {
+.array-block:before {
   position: absolute;
   content: "";
   left: 4px;
