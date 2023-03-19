@@ -3,10 +3,10 @@ import * as path from "path";
 import colorLog from "../log";
 import { PluginOption } from "vite";
 import ManifestParser from "../manifest-parser";
+import { outDir } from "utils/build";
 
 const { resolve } = path;
 
-const distDir = resolve(__dirname, "..", "..", "dist");
 const publicDir = resolve(__dirname, "..", "..", "public");
 
 export default function makeManifest(
@@ -40,7 +40,7 @@ export default function makeManifest(
     name: "make-manifest",
     buildStart() {
       if (config.isDev) {
-        makeManifest(distDir);
+        makeManifest(outDir);
       }
     },
     buildEnd() {
