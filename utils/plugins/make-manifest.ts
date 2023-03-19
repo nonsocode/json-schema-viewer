@@ -3,7 +3,7 @@ import * as path from "path";
 import colorLog from "../log";
 import { PluginOption } from "vite";
 import ManifestParser from "../manifest-parser";
-import { outDir } from "utils/build";
+import { outDir } from "../build";
 
 const { resolve } = path;
 

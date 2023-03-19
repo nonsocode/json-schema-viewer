@@ -1,7 +1,5 @@
-console.log("content loaded");
+function isJsonDocument() {
+  return document.contentType === "application/json";
+}
 
-/**
- * @description
- * Chrome extensions don't support modules in content scripts.
- */
-import("./components/Demo");
+isJsonDocument() && import("./components/root")
