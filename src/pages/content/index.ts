@@ -1,5 +1,7 @@
+
 function isJsonDocument() {
   return document.contentType === "application/json";
 }
-
-isJsonDocument() && import("./components/root")
+import('./update')
+isJsonDocument() &&
+  import("./components/root").then(({ createApp }) => createApp());

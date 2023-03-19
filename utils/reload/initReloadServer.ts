@@ -9,6 +9,7 @@ import {
   UPDATE_REQUEST_MESSAGE,
 } from "./constant";
 import MessageInterpreter from "./interpreter";
+import { outDir } from "utils/build";
 
 const clientsThatNeedToUpdate: Set<WebSocket> = new Set();
 
@@ -53,6 +54,6 @@ const debounceDist = debounce(() => {
     ws.send(MessageInterpreter.send({ type: UPDATE_REQUEST_MESSAGE }));
   });
 }, 200);
-chokidar.watch("dist").on("all", () => debounceDist());
+chokidar.watch(outDir).on("all", () => debounceDist());
 
 initReloadServer();

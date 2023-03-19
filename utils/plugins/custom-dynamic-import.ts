@@ -8,7 +8,7 @@ export default function customDynamicImport(): PluginOption {
         left: `
         {
           const dynamicImport = (path) => import(path);
-          dynamicImport(
+          return dynamicImport(
           `,
         right: ")}",
       };

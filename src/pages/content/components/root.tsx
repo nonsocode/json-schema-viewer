@@ -1,10 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "@src/pages/content/components/app";
-import refreshOnUpdate from "virtual:reload-on-update-in-view";
 
-refreshOnUpdate("pages/content");
+export function createApp() {
+  const root = document.createElement("json-view-root");
+  const defaultPre: HTMLPreElement = document.querySelector("body > pre");
+  defaultPre.style.display = "none";
+  document.body.append(root);
 
-const root = document.createElement("json-view-root");
-document.body.append(root);
-
-createRoot(root).render(<App />);
+  createRoot(root).render(<App jsonString={defaultPre.textContent} />);
+}
