@@ -1,3 +1,18 @@
-.string-value {
+.string-value, .url-value {
   color: #88dd99;
+}
+.number-value {
+  color: #ffcc00;
+}
+
+.boolean-value {
+  color: #ff88cc;
+}
+
+.null-value {
+  color: grey;
+}
+
+.undefined-value {
+  color: grey;
 }
