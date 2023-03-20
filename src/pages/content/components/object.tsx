@@ -6,6 +6,7 @@ const cx = classnames.bind(style);
 
 type ObjectComponentProps = CommonValueProps & {
   node: jsonToAst.ObjectNode;
+  parentPath: string
 };
 export function ObjectComponent(props: ObjectComponentProps) {
   return (
@@ -15,6 +16,7 @@ export function ObjectComponent(props: ObjectComponentProps) {
           key={index}
           root={props.root}
           value={prop.value}
+          parentPath={props.parentPath}
           identifier={prop.key}
           isLast={index === props.node.children.length - 1}
         />
