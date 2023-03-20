@@ -4,7 +4,7 @@ import style from "./object.module.css";
 import { Entry } from "./entry";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { LiteralNode, PropertyNode, ValueNode } from "json-to-ast";
-import { isUrl } from "@src/utils/json/url";
+import { isUrl } from "@src/utils/url";
 import { UrlContext, UrlProvider } from "../context/url";
 import { astStore } from "../store";
 import { useQuery } from "../hooks";

@@ -2,7 +2,7 @@ import { CommonValueProps } from "../types";
 import classnames from "classnames/bind";
 import styles from "./literal.module.css";
 import { LiteralNode } from "json-to-ast";
-import { isUrl } from "@src/utils/json/url";
+import { isUrl } from "@src/utils/url";
 const cx = classnames.bind(styles);
 
 type LiteralComponentProps = CommonValueProps & {
