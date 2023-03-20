@@ -13,3 +13,7 @@
   bottom: 4px;
   border-inline-start: 1px dotted #ccc;
 }
+
+.ref-button{
+  margin-inline-start: 15px;
+}

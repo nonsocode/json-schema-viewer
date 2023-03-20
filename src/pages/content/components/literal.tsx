@@ -2,6 +2,7 @@ import { CommonValueProps } from "../types";
 import classnames from "classnames/bind";
 import styles from "./literal.module.css";
 import { LiteralNode } from "json-to-ast";
+import { isUrl } from "@src/utils/json/url";
 const cx = classnames.bind(styles);
 
 type LiteralComponentProps = CommonValueProps & {
@@ -31,8 +32,4 @@ function getStringElement(node: LiteralNode) {
     );
   }
   return <span className={cx("string-value")}>{node.raw}</span>;
-}
-const urlRegex = /^(((https?:)?\/\/?)|#).+/;
-function isUrl(value: string) {
-    return urlRegex.test(value);
 }

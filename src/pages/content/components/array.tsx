@@ -11,18 +11,22 @@ type ArrayComponentProps = CommonValueProps & {
 };
 export function ArrayComponent(props: ArrayComponentProps) {
   return (
-    <div className={cx("array-block")}>
-      {props.node.children.map((prop, index) => (
-        <ArrayEntry
-          key={index}
-          root={props.root}
-          value={prop}
-          index={index}
-          parentPath={props.parentPath}
-          isLast={index === props.node.children.length - 1}
-        />
-      ))}
-    </div>
+    <>
+      <ArrayOpener />
+      <div className={cx("array-block")}>
+        {props.node.children.map((prop, index) => (
+          <ArrayEntry
+            key={index}
+            root={props.root}
+            value={prop}
+            index={index}
+            parentPath={props.parentPath}
+            isLast={index === props.node.children.length - 1}
+          />
+        ))}
+      </div>
+      <ArrayCloser />
+    </>
   );
 }
 type ArrayEntryProps = {

@@ -33,12 +33,12 @@ function compilePointer(pointer: string): string[] {
   return compiled;
 }
 
-function get(obj: ValueNode, pointer: string): ValueNode {
+export function get(obj: ValueNode, pointer: string): ValueNode | null {
   const compiled = compilePointer(pointer);
-  const len = pointer.length;
+  const len = compiled.length;
   if (len === 1) return obj;
 
-  for (let p = 1; p < len; p++) {
+  outer: for (let p = 1; p < len; p++) {
     const key = compiled[p];
     if (obj.type === "Object") {
       const children = obj.children;
@@ -46,9 +46,10 @@ function get(obj: ValueNode, pointer: string): ValueNode {
         const child = children[i];
         if (child.key.value === key) {
           obj = child.value;
-          break;
+          continue outer;
         }
       }
+      return null
     } else if (obj.type === "Array") {
       const index = parseInt(key, 10);
       if (isNaN(index) || index >= obj.children.length) {
@@ -59,4 +60,5 @@ function get(obj: ValueNode, pointer: string): ValueNode {
       throw new Error("Invalid JSON pointer.");
     }
   }
+  return obj
 }

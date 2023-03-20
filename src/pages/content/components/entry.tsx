@@ -28,35 +28,27 @@ export function Entry(props: EntryProps) {
         </>
       )}
       {props.value.type === "Object" && (
-        <>
-          <ObjectOpener />
-          <ObjectComponent
-            node={props.value}
-            {...props}
-            root={props.root}
-            parentPath={
-              props.identifier === ROOT_IDENTIFIER
-                ? ""
-                : generateId(props.parentPath, props.identifier)
-            }
-          />
-          <ObjectCloser />
-        </>
+        <ObjectComponent
+          node={props.value}
+          {...props}
+          root={props.root}
+          parentPath={
+            props.identifier === ROOT_IDENTIFIER
+              ? ""
+              : generateId(props.parentPath, props.identifier)
+          }
+        />
       )}
       {props.value.type === "Array" && (
-        <>
-          <ArrayOpener />
-          <ArrayComponent
-            root={props.root}
-            node={props.value}
-            parentPath={
-              props.identifier === ROOT_IDENTIFIER
-                ? ""
-                : generateId(props.parentPath, props.identifier)
-            }
-          />
-          <ArrayCloser />
-        </>
+        <ArrayComponent
+          root={props.root}
+          node={props.value}
+          parentPath={
+            props.identifier === ROOT_IDENTIFIER
+              ? ""
+              : generateId(props.parentPath, props.identifier)
+          }
+        />
       )}
       {props.value.type === "Literal" && (
         <LiteralComponent root={props.root} node={props.value} />
@@ -88,4 +80,8 @@ function Identifier({ identifier, parentPath }: IdentifierProps) {
 
 function ExpandButton() {
   return <button className={cx("expand-button")}></button>;
+}
+
+function isRefEntry(entry: EntryProps) {
+  return entry.value.type === "Literal" && entry.value.value === "$ref";
 }
