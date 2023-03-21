@@ -1,4 +1,4 @@
-import { ValueNode } from "json-to-ast";
+import { JsonValue } from "@src/types";
 
 
-export const astStore = new Map<string, ValueNode>()
+export const jsonTreeStore = new Map<string, JsonValue>()

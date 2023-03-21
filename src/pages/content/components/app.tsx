@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from "react";
-import jta from "json-to-ast";
 import { Entry } from "./entry";
 import classnames from "classnames/bind";
 import styles from "./app.module.css";
 import { ROOT_IDENTIFIER } from "../constants";
-import { astStore } from "../store";
+import { jsonTreeStore } from "../store";
 import { UrlProvider } from "../context/url";
+import { JsonValue } from "@src/types";
 const cx = classnames.bind(styles);
 interface AppProps {
   jsonString: string;
@@ -13,25 +13,29 @@ interface AppProps {
 
 export default function App({ jsonString }: AppProps) {
   const tree = useMemo(() => {
-    console.time();
-    const res = jta(jsonString, {
-      loc: false,
-    });
-    console.timeEnd();
-    return res;
+    const startTime = performance.now()
+    console.time('processing')
+    try {
+      const res = JSON.parse(jsonString) as JsonValue;
+      return res;
+    } catch (e) {
+      console.error(e);
+    }
+    finally {
+      console.timeEnd('processing')
+    }
   }, [jsonString]);
 
   useEffect(() => {
-    astStore.set(getCurrentUrl(), tree);
-    astStore.set("", tree);
-  }, []);
+    jsonTreeStore.set(getCurrentUrl(), tree);
+    jsonTreeStore.set("", tree);
+  }, [tree]);
 
   return (
     <UrlProvider>
       <div className={cx("json-view-app")}>
         <Entry
           parentPath=""
-          root={tree}
           value={tree}
           isLast
           identifier={ROOT_IDENTIFIER}

@@ -1,38 +1,40 @@
-import { CommonValueProps } from "../types";
 import classnames from "classnames/bind";
 import styles from "./literal.module.css";
 import { LiteralNode } from "json-to-ast";
 import { isUrl } from "@src/utils/url";
 import { useContext, useMemo } from "react";
 import { UrlContext } from "../context/url";
+import { Literal, LiteralComponentProps } from "@src/types";
+import { getJsonType } from "@src/utils/json";
 const cx = classnames.bind(styles);
 
-type LiteralComponentProps = CommonValueProps & {
-  node: jsonToAst.LiteralNode;
-};
 export function LiteralComponent(props: LiteralComponentProps) {
-  switch (true) {
-    case typeof props.node.value === "number":
-      return <span className={cx("number-value")}>{props.node.raw}</span>;
-    case typeof props.node.value === "string":
-      return <StringComponent node={props.node} />;
-    case typeof props.node.value === "boolean":
-      return <span className={cx("boolean-value")}>{props.node.raw}</span>;
-    case props.node.value === null:
-      return <span className={cx("null-value")}>{props.node.raw}</span>;
+  switch (getJsonType(props.node)) {
+    case "number":
+      return <span className={cx("number-value")}>{props.node}</span>;
+    case "string":
+      return <StringComponent node={props.node as string} />;
+    case "boolean":
+      return (
+        <span className={cx("boolean-value")}>
+          {props.node ? "true" : "false"}
+        </span>
+      );
+    case "null":
+      return <span className={cx("null-value")}>null</span>;
     default:
-      return <span className={cx("undefined-value")}>{props.node.raw}</span>;
+      return <span className={cx("undefined-value")}>undefined</span>;
   }
 }
 type StringComponentProps = {
-  node: LiteralNode;
+  node: string;
 };
 function StringComponent(props: StringComponentProps) {
   const urlContext = useContext(UrlContext);
   const url = useMemo(() => {
-    if (!isUrl(props.node.value as string)) return null;
+    if (!isUrl(props.node)) return null;
     let url: URL;
-    const partialUrl = props.node.value as string;
+    const partialUrl = props.node;
     if (partialUrl.startsWith("#")) {
       url = new URL(urlContext.fullPath);
       url.hash = partialUrl;
@@ -40,13 +42,13 @@ function StringComponent(props: StringComponentProps) {
       url = new URL(partialUrl);
     }
     return url;
-  }, [urlContext.fullPath, props.node.value]);
-  
+  }, [urlContext.fullPath, props.node]);
+
   return url ? (
     <a href={url.toString()} className={cx("url-value")}>
-      {props.node.raw}
+      "{props.node}"
     </a>
   ) : (
-    <span className={cx("string-value")}>{props.node.raw}</span>
+    <span className={cx("string-value")}>"{props.node}"</span>
   );
 }

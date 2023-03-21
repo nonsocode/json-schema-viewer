@@ -1,110 +1,103 @@
-import { CommonValueProps } from "../types";
 import classnames from "classnames/bind";
 import style from "./object.module.css";
 import { Entry } from "./entry";
 import { useCallback, useContext, useMemo, useState } from "react";
-import { LiteralNode, PropertyNode, ValueNode } from "json-to-ast";
-import { isUrl } from "@src/utils/url";
 import { UrlContext, UrlProvider } from "../context/url";
-import { astStore } from "../store";
+import { jsonTreeStore } from "../store";
 import { useQuery } from "../hooks";
-import jsonToAst from "json-to-ast";
 import { get } from "@src/utils/json/pointer";
+import { EntryProps, JsonValue, ObjectComponentProps } from "@src/types";
+import { getJsonType } from "@src/utils/json";
 const cx = classnames.bind(style);
 
-type ObjectComponentProps = CommonValueProps & {
-  node: jsonToAst.ObjectNode;
-  parentPath: string;
-};
 export function ObjectComponent(props: ObjectComponentProps) {
-  const refNode: LiteralNode = useMemo(() => {
-    const prop = props.node.children.find(
-      (prop) =>
-        prop.key.value === "$ref" &&
-        prop.value.type === "Literal" &&
-        typeof prop.value.value === "string" &&
-        isUrl(prop.value.value)
+  const $ref: string | undefined = useMemo(() => {
+    if (props.node["$ref"] && typeof props.node["$ref"] === "string")
+      return props.node["$ref"];
+  }, [props.node.children]);
+
+  const entries: EntryProps[] = useMemo(() => {
+    return Object.entries(props.node).map<EntryProps>(
+      ([key, value], index, { length }) => ({
+        isLast: index === length - 1,
+        identifier: key,
+        value,
+        parentPath: props.parentPath,
+      })
     );
-    if (prop) return prop.value as LiteralNode;
   }, [props.node.children]);
 
   const urlContext = useContext(UrlContext);
 
   const refUrl: URL = useMemo(() => {
-    if (!refNode) return;
-    const partialUrl = refNode.value as string;
+    if (!$ref) return;
     let url: URL;
-    if (partialUrl.startsWith("#")) {
+    if ($ref.startsWith("#")) {
       url = new URL(urlContext.fullPath);
-      url.hash = partialUrl;
+      url.hash = $ref;
     } else {
-      url = new URL(partialUrl);
+      url = new URL($ref);
     }
     return url;
-  }, [refNode]);
+  }, [$ref]);
 
   const [derrefed, setDerefed] = useState(false);
 
   const { loading, query, error, data } = useQuery(fetchAndCache);
 
   const onClick = useCallback(async () => {
-    if (!refNode) return;
+    if (!$ref) return;
     if (!derrefed) await query(refUrl);
     setDerefed(!derrefed);
-  }, [derrefed, refNode, query]);
+  }, [derrefed, $ref, query]);
 
-  const nodes: PropertyNode[] = useMemo(() => {
+  const nodes: EntryProps[] = useMemo(() => {
     if (derrefed) {
-      return props.node.children.filter((prop) => prop.key.value !== "$ref");
+      return entries.filter((prop) => prop.identifier !== "$ref");
     } else {
-      return props.node.children;
+      return entries;
     }
-  }, [derrefed]);
+  }, [derrefed, entries]);
 
-  const nodesFromRef: PropertyNode[] = useMemo(() => {
+  const nodesFromRef: EntryProps[] = useMemo(() => {
     if (!derrefed || error || loading || !data) {
       return [];
     }
-    if (data.type !== "Object") {
+    if (getJsonType(data) !== "object") {
       return [];
     }
     const nodes = get(data, refUrl.hash.slice(1) || "/");
-    if(!nodes || nodes.type !== "Object") {
+    if (!nodes || getJsonType(nodes) !== "object") {
       return [];
     }
-    return nodes.children;
+    return Object.entries(nodes).map(
+      ([identifier, value], index, { length }) => ({
+        value,
+        identifier,
+        parentPath: props.parentPath,
+        isLast: index === length - 1,
+      })
+    );
   }, [derrefed, data]);
 
   return (
     <>
       <ObjectOpener />
-      {!!refNode && (
-        <RefButton onClick={onClick}>{derrefed ? "re-ref" : "deref"}</RefButton>
-      )}
+      {!!$ref && <RefButton onClick={onClick} toggled={derrefed} />}
       <div className={cx("object-block")}>
         {derrefed && nodesFromRef.length && (
           <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
             {nodesFromRef.map((prop, index) => (
               <Entry
-                key={index + prop.key.value}
-                root={props.root}
-                value={prop.value}
-                parentPath={props.parentPath}
-                identifier={prop.key}
-                isLast={index === nodesFromRef.length - 1}
+                key={`${index}-${prop.identifier}`}
+                {...prop}
+                isLast={index === nodesFromRef.length - 1 && nodes.length === 0}
               />
             ))}
           </UrlProvider>
         )}
         {nodes.map((prop, index) => (
-          <Entry
-            key={index + prop.key.value}
-            root={props.root}
-            value={prop.value}
-            parentPath={props.parentPath}
-            identifier={prop.key}
-            isLast={index === nodes.length - 1}
-          />
+          <Entry key={`${index}-${prop.identifier}`} {...prop} />
         ))}
       </div>
       <ObjectCloser />
@@ -120,31 +113,28 @@ function ObjectCloser() {
 }
 
 type RefButtonProps = {
-  children: React.ReactNode;
   disabled?: boolean;
+  toggled?: boolean;
   onClick: () => void;
 };
 function RefButton(props: RefButtonProps) {
   return (
     <button
-      className={cx("ref-button")}
+      className={cx("ref-button", { toggled: props.toggled})}
       onClick={props.onClick}
       disabled={props.disabled}
-    >
-      {props.children}
-    </button>
+    ></button>
   );
 }
 
 async function fetchAndCache(url: URL) {
   const fullPath = url.origin + url.pathname;
-  if (astStore.has(fullPath)) {
-    return astStore.get(fullPath);
+  if (jsonTreeStore.has(fullPath)) {
+    return jsonTreeStore.get(fullPath);
   }
   const res = await fetch(url);
   if (!res.ok) throw new Error(res.statusText);
-  const jsonText = await res.text();
-  const ast = jsonToAst(jsonText);
-  astStore.set(url.origin + url.pathname, ast);
-  return ast;
+  const tree: JsonValue = await res.json();
+  jsonTreeStore.set(url.origin + url.pathname, tree);
+  return tree;
 }

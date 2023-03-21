@@ -1,7 +1,3 @@
-import { IdentifierNode } from "json-to-ast";
+import { Identifier } from "@src/types";
 
-export const ROOT_IDENTIFIER: IdentifierNode = {
-  type: "Identifier",
-  value: "",
-  raw: "",
-}
+export const ROOT_IDENTIFIER: Identifier = "__ROOT__JSON_TREE_VIEWER__"

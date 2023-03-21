@@ -1,37 +1,50 @@
-import { CommonValueProps } from "../types";
-import { ArrayCloser, ArrayComponent, ArrayOpener } from "./array";
+import { ArrayComponent } from "./array";
 import { LiteralComponent } from "./literal";
-import { ObjectComponent, ObjectOpener, ObjectCloser } from "./object";
+import { ObjectComponent } from "./object";
 import classnames from "classnames/bind";
 import styles from "./entry.module.css";
 import { ROOT_IDENTIFIER } from "../constants";
 import { escape } from "@src/utils/json/pointer";
+import {
+  EntryProps,
+  Identifier as Identity,
+  IdentifierProps,
+  JsonArray,
+  JsonObject,
+  JsonValue,
+  Literal,
+} from "@src/types";
+import { useMemo } from "react";
+import { getJsonType, isLiteral } from "@src/utils/json";
 const cx = classnames.bind(styles);
 
-type EntryProps = CommonValueProps & {
-  identifier?: jsonToAst.IdentifierNode;
-  value: jsonToAst.ValueNode;
-  isLast: boolean;
-  parentPath: string;
-};
 export function Entry(props: EntryProps) {
+  const type = useMemo(() => {
+    return getJsonType(props.value);
+  }, [props.value]);
+  const valueIsLiteral = useMemo(() => {
+    return isLiteral(props.value);
+  }, [props.value]);
+
+  const showIdentifier = useMemo(() => {
+    return props.identifier !== undefined && props.identifier !== ROOT_IDENTIFIER && typeof props.identifier !== "number";
+  }, [])
   return (
     <div className={cx("entry")}>
-      {props.value.type !== "Literal" && <ExpandButton />}
-      {props.identifier && (
+      {!valueIsLiteral && <ExpandButton />}
+      {showIdentifier && (
         <>
           <Identifier
             identifier={props.identifier}
             parentPath={props.parentPath}
           />
-          {props.identifier !== ROOT_IDENTIFIER && <KVSeparator />}
+          <KVSeparator />
         </>
       )}
-      {props.value.type === "Object" && (
+      {type === "object" && (
         <ObjectComponent
-          node={props.value}
+          node={props.value as JsonObject}
           {...props}
-          root={props.root}
           parentPath={
             props.identifier === ROOT_IDENTIFIER
               ? ""
@@ -39,10 +52,9 @@ export function Entry(props: EntryProps) {
           }
         />
       )}
-      {props.value.type === "Array" && (
+      {type === "array" && (
         <ArrayComponent
-          root={props.root}
-          node={props.value}
+          node={props.value as JsonArray}
           parentPath={
             props.identifier === ROOT_IDENTIFIER
               ? ""
@@ -50,38 +62,28 @@ export function Entry(props: EntryProps) {
           }
         />
       )}
-      {props.value.type === "Literal" && (
-        <LiteralComponent root={props.root} node={props.value} />
-      )}
+      {valueIsLiteral && <LiteralComponent node={props.value as Literal} />}
       {props.isLast ? "" : ","}
     </div>
   );
 }
 
-function generateId(parentPath: string, identifier: jsonToAst.IdentifierNode) {
-  return `${parentPath}/${escape(identifier.value)}`;
+function generateId(parentPath: string, identifier: Identity) {
+  return `${parentPath}/${escape(identifier.toString())}`;
 }
 
 function KVSeparator() {
   return <span className={cx("kv-separator")}>:&nbsp;</span>;
 }
 
-type IdentifierProps = {
-  identifier: jsonToAst.IdentifierNode;
-  parentPath: string;
-};
 function Identifier({ identifier, parentPath }: IdentifierProps) {
   return (
     <span className={cx("identifier")} id={generateId(parentPath, identifier)}>
-      {identifier.raw}
+      {typeof identifier === "number" ? `[${identifier}]` : `"${identifier}"`}
     </span>
   );
 }
 
 function ExpandButton() {
   return <button className={cx("expand-button")}></button>;
-}
-
-function isRefEntry(entry: EntryProps) {
-  return entry.value.type === "Literal" && entry.value.value === "$ref";
 }

@@ -1,4 +1,6 @@
+import { JsonValue } from "@src/types";
 import { ValueNode } from "json-to-ast";
+import { getJsonType, isArray, isObject } from ".";
 
 const hasExcape = /~/;
 const escapeMatcher = /~[01]/g;
@@ -33,32 +35,28 @@ function compilePointer(pointer: string): string[] {
   return compiled;
 }
 
-export function get(obj: ValueNode, pointer: string): ValueNode | null {
+export function get(obj: JsonValue, pointer: string): JsonValue {
   const compiled = compilePointer(pointer);
   const len = compiled.length;
   if (len === 1) return obj;
 
   outer: for (let p = 1; p < len; p++) {
     const key = compiled[p];
-    if (obj.type === "Object") {
-      const children = obj.children;
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i];
-        if (child.key.value === key) {
-          obj = child.value;
-          continue outer;
-        }
-      }
-      return null
-    } else if (obj.type === "Array") {
-      const index = parseInt(key, 10);
-      if (isNaN(index) || index >= obj.children.length) {
+    if (isObject(obj)) {
+      if (key in obj) {
+        obj = obj[key];
+      } else {
         throw new Error("Invalid JSON pointer.");
       }
-      obj = obj.children[index];
+    } else if (isArray(obj)) {
+      const index = parseInt(key, 10);
+      if (isNaN(index) || index >= obj.length) {
+        throw new Error("Invalid JSON pointer.");
+      }
+      obj = obj[index];
     } else {
       throw new Error("Invalid JSON pointer.");
     }
   }
-  return obj
+  return obj;
 }
