@@ -1,10 +1,12 @@
+import React from "react";
 import { Identifier, JsonArray, JsonObject, JsonValue, Literal } from "./json";
 
-export type CommonValueProps = {};
+export type CommonValueProps = {
+  isLast: boolean;
+};
 export type EntryProps = CommonValueProps & {
   identifier?: Identifier;
   value: JsonValue;
-  isLast: boolean;
   parentPath: string;
 };
 
@@ -17,6 +19,7 @@ export type IdentifierProps = {
 export type ObjectComponentProps = CommonValueProps & {
   node: JsonObject;
   parentPath: string;
+  expanded: boolean;
 };
 
 export type LiteralComponentProps = CommonValueProps & {
@@ -25,5 +28,15 @@ export type LiteralComponentProps = CommonValueProps & {
 
 export type ArrayComponentProps = CommonValueProps & {
   node: JsonArray;
+  expanded: boolean;
   parentPath: string;
 };
+
+export type ExpandedButtonProps = {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  isExpanded: boolean;
+}
+
+export type SummaryProps = {
+  content: string;
+}

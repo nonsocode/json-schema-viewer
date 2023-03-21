@@ -7,6 +7,7 @@ import { ROOT_IDENTIFIER } from "../constants";
 import { escape } from "@src/utils/json/pointer";
 import {
   EntryProps,
+  ExpandedButtonProps,
   Identifier as Identity,
   IdentifierProps,
   JsonArray,
@@ -14,11 +15,12 @@ import {
   JsonValue,
   Literal,
 } from "@src/types";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { getJsonType, isLiteral } from "@src/utils/json";
 const cx = classnames.bind(styles);
 
 export function Entry(props: EntryProps) {
+  const [expanded, setExpanded] = useState(true);
   const type = useMemo(() => {
     return getJsonType(props.value);
   }, [props.value]);
@@ -27,11 +29,21 @@ export function Entry(props: EntryProps) {
   }, [props.value]);
 
   const showIdentifier = useMemo(() => {
-    return props.identifier !== undefined && props.identifier !== ROOT_IDENTIFIER && typeof props.identifier !== "number";
-  }, [])
+    return (
+      props.identifier !== undefined &&
+      props.identifier !== ROOT_IDENTIFIER &&
+      typeof props.identifier !== "number"
+    );
+  }, []);
+
+  const handleExpand = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
   return (
     <div className={cx("entry")}>
-      {!valueIsLiteral && <ExpandButton />}
+      {!valueIsLiteral && (
+        <ExpandButton onClick={handleExpand} isExpanded={expanded} />
+      )}
       {showIdentifier && (
         <>
           <Identifier
@@ -44,7 +56,8 @@ export function Entry(props: EntryProps) {
       {type === "object" && (
         <ObjectComponent
           node={props.value as JsonObject}
-          {...props}
+          expanded={expanded}
+          isLast={props.isLast}
           parentPath={
             props.identifier === ROOT_IDENTIFIER
               ? ""
@@ -55,15 +68,18 @@ export function Entry(props: EntryProps) {
       {type === "array" && (
         <ArrayComponent
           node={props.value as JsonArray}
+          expanded={expanded}
           parentPath={
             props.identifier === ROOT_IDENTIFIER
               ? ""
               : generateId(props.parentPath, props.identifier)
           }
+          isLast={props.isLast}
         />
       )}
-      {valueIsLiteral && <LiteralComponent node={props.value as Literal} />}
-      {props.isLast ? "" : ","}
+      {valueIsLiteral && (
+        <LiteralComponent node={props.value as Literal} isLast={props.isLast} />
+      )}
     </div>
   );
 }
@@ -84,6 +100,11 @@ function Identifier({ identifier, parentPath }: IdentifierProps) {
   );
 }
 
-function ExpandButton() {
-  return <button className={cx("expand-button")}></button>;
+function ExpandButton(props: ExpandedButtonProps) {
+  return (
+    <button
+      className={cx("expand-button", { expanded: props.isExpanded })}
+      onClick={props.onClick}
+    ></button>
+  );
 }

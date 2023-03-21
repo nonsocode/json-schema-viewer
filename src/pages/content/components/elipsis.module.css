@@ -1,0 +1,6 @@
+.elipsis:before {
+  content: "\2026";
+}
+.elipsis {
+  margin-inline: 5px;
+}

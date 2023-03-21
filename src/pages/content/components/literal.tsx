@@ -9,22 +9,32 @@ import { getJsonType } from "@src/utils/json";
 const cx = classnames.bind(styles);
 
 export function LiteralComponent(props: LiteralComponentProps) {
+  let data;
   switch (getJsonType(props.node)) {
     case "number":
-      return <span className={cx("number-value")}>{props.node}</span>;
+      data = <span className={cx("number-value")}>{props.node}</span>;
+      break;
     case "string":
-      return <StringComponent node={props.node as string} />;
+      data = <StringComponent node={props.node as string} />;
+      break;
     case "boolean":
-      return (
+      data = (
         <span className={cx("boolean-value")}>
           {props.node ? "true" : "false"}
         </span>
       );
+      break;
     case "null":
-      return <span className={cx("null-value")}>null</span>;
+      data = <span className={cx("null-value")}>null</span>;
+      break;
     default:
-      return <span className={cx("undefined-value")}>undefined</span>;
+      data = <span className={cx("undefined-value")}>undefined</span>;
   }
+  return (
+    <>
+      {data}{props.isLast ? "" : ","}
+    </>
+  );
 }
 type StringComponentProps = {
   node: string;

@@ -21,16 +21,28 @@
   color: #80bbff;
 }
 .expand-button {
+  --size: 5px;
   appearance: none;
   position: absolute;
   top: 5px;
   left: 1.5ch;
-  scale: 0.8;
-  transform-origin: 50% 50%;
   padding: 0;
+  transition: transform 0.2s ease-out;
   background: none;
-  border-top: 10px solid white;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
   vertical-align: middle;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-size: 0;
+  border-top: var(--size) solid transparent;
+  border-bottom: var(--size) solid transparent;
+  border-left: calc(var(--size) * 2 * 0.866025404) solid white;
+  transform-origin: calc(var(--size) * 0.866025404)
+    calc(var(--size) * 0.866025404);
+  cursor: pointer;
+
+}
+
+.expand-button.expanded {
+  transform: rotateZ(90deg);
 }

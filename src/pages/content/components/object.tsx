@@ -8,6 +8,8 @@ import { useQuery } from "../hooks";
 import { get } from "@src/utils/json/pointer";
 import { EntryProps, JsonValue, ObjectComponentProps } from "@src/types";
 import { getJsonType } from "@src/utils/json";
+import { Elipsis } from "./elipsis";
+import { Summary } from "./summary";
 const cx = classnames.bind(style);
 
 export function ObjectComponent(props: ObjectComponentProps) {
@@ -80,27 +82,44 @@ export function ObjectComponent(props: ObjectComponentProps) {
     );
   }, [derrefed, data]);
 
+  const summary: string = useMemo(() => {
+    if(derrefed) {
+      const totalNodes = nodesFromRef.length + nodes.length
+      return `${totalNodes} item${totalNodes > 1 ? "s" : ""}`
+    }
+    return `${nodes.length} item${nodes.length > 1 ? "s" : ""}`
+  }, [nodes, nodesFromRef, derrefed])
   return (
     <>
       <ObjectOpener />
-      {!!$ref && <RefButton onClick={onClick} toggled={derrefed} />}
-      <div className={cx("object-block")}>
-        {derrefed && nodesFromRef.length && (
-          <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
-            {nodesFromRef.map((prop, index) => (
-              <Entry
-                key={`${index}-${prop.identifier}`}
-                {...prop}
-                isLast={index === nodesFromRef.length - 1 && nodes.length === 0}
-              />
+      {props.expanded ? (
+        <>
+          {!!$ref && <RefButton onClick={onClick} toggled={derrefed} />}
+          <div className={cx("object-block")}>
+            {derrefed && nodesFromRef.length && (
+              <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
+                {nodesFromRef.map((prop, index) => (
+                  <Entry
+                    key={`${index}-${prop.identifier}`}
+                    {...prop}
+                    isLast={
+                      index === nodesFromRef.length - 1 && nodes.length === 0
+                    }
+                  />
+                ))}
+              </UrlProvider>
+            )}
+            {nodes.map((prop, index) => (
+              <Entry key={`${index}-${prop.identifier}`} {...prop} />
             ))}
-          </UrlProvider>
-        )}
-        {nodes.map((prop, index) => (
-          <Entry key={`${index}-${prop.identifier}`} {...prop} />
-        ))}
-      </div>
+          </div>
+        </>
+      ) : (
+        <Elipsis />
+      )}
       <ObjectCloser />
+      {props.isLast ? "" : ","}
+      {!props.expanded && <Summary content={summary} />}
     </>
   );
 }
@@ -120,7 +139,7 @@ type RefButtonProps = {
 function RefButton(props: RefButtonProps) {
   return (
     <button
-      className={cx("ref-button", { toggled: props.toggled})}
+      className={cx("ref-button", { toggled: props.toggled })}
       onClick={props.onClick}
       disabled={props.disabled}
     ></button>

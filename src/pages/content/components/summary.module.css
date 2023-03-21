@@ -1,0 +1,9 @@
+
+.summary:before {
+  content: var(--content);
+}
+
+.summary {
+  opacity: 0.5;
+  margin-inline-start: 20px;
+}
