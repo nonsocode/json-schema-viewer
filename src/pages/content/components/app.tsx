@@ -31,6 +31,16 @@ export default function App({ jsonString }: AppProps) {
     jsonTreeStore.set("", tree);
   }, [tree]);
 
+  useEffect(() => {
+    (document.scrollingElement as HTMLElement).style.scrollBehavior = 'smooth'
+    if(document.location.hash) {
+      const el = document.getElementById(document.location.hash.slice(1))
+      if(el) {
+        el.scrollIntoView()
+      }
+    }
+  }, [])
+
   return (
     <UrlProvider>
       <div className={cx("json-view-app")}>
