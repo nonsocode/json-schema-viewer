@@ -3,7 +3,7 @@ import style from "./object.module.css";
 import { Entry } from "./entry";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { UrlContext, UrlProvider } from "../context/url";
-import { jsonTreeStore } from "../store";
+import { jsonTreeCache } from "../store";
 import { useQuery } from "../hooks";
 import { get } from "@src/utils/json/pointer";
 import { EntryProps, JsonValue, ObjectComponentProps } from "@src/types";
@@ -148,12 +148,12 @@ function RefButton(props: RefButtonProps) {
 
 async function fetchAndCache(url: URL) {
   const fullPath = url.origin + url.pathname;
-  if (jsonTreeStore.has(fullPath)) {
-    return jsonTreeStore.get(fullPath);
+  if (jsonTreeCache.has(fullPath)) {
+    return jsonTreeCache.get(fullPath);
   }
   const res = await fetch(url);
   if (!res.ok) throw new Error(res.statusText);
   const tree: JsonValue = await res.json();
-  jsonTreeStore.set(url.origin + url.pathname, tree);
+  jsonTreeCache.set(url.origin + url.pathname, tree);
   return tree;
 }

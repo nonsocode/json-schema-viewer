@@ -3,7 +3,7 @@ import { Entry } from "./entry";
 import classnames from "classnames/bind";
 import styles from "./app.module.css";
 import { ROOT_IDENTIFIER } from "../constants";
-import { jsonTreeStore } from "../store";
+import { jsonTreeCache } from "../store";
 import { UrlProvider } from "../context/url";
 import { JsonValue } from "@src/types";
 const cx = classnames.bind(styles);
@@ -27,8 +27,8 @@ export default function App({ jsonString }: AppProps) {
   }, [jsonString]);
 
   useEffect(() => {
-    jsonTreeStore.set(getCurrentUrl(), tree);
-    jsonTreeStore.set("", tree);
+    jsonTreeCache.set(getCurrentUrl(), tree);
+    jsonTreeCache.set("", tree);
   }, [tree]);
 
   useEffect(() => {
