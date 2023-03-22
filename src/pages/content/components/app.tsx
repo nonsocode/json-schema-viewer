@@ -3,7 +3,7 @@ import { Entry } from "./entry";
 import classnames from "classnames/bind";
 import styles from "./app.module.css";
 import { ROOT_IDENTIFIER } from "../constants";
-import { jsonTreeCache } from "../store";
+import { jsonTreeCache } from "../cache";
 import { UrlProvider } from "../context/url";
 import { JsonValue } from "@src/types";
 const cx = classnames.bind(styles);

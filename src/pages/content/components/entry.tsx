@@ -15,12 +15,15 @@ import {
   JsonValue,
   Literal,
 } from "@src/types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { getJsonType, isLiteral } from "@src/utils/json";
+import { useCollapsed } from "../store";
 const cx = classnames.bind(styles);
 
 export function Entry(props: EntryProps) {
-  const [expanded, setExpanded] = useState(true);
+  const id = useMemo(() => generateId(props.parentPath, props.identifier), [props.parentPath, props.identifier])
+  const expanded = useCollapsed(state => !state.collapsed.has(id))
+  const toggleCollapsed = useCollapsed(state => state.toggleCollapsed)
   const type = useMemo(() => {
     return getJsonType(props.value);
   }, [props.value]);
@@ -37,8 +40,8 @@ export function Entry(props: EntryProps) {
   }, []);
 
   const handleExpand = useCallback(() => {
-    setExpanded((prev) => !prev);
-  }, []);
+    toggleCollapsed(id)
+  }, [toggleCollapsed, id]);
   return (
     <div className={cx("entry")}>
       {!valueIsLiteral && (
@@ -48,7 +51,7 @@ export function Entry(props: EntryProps) {
         <>
           <Identifier
             identifier={props.identifier}
-            parentPath={props.parentPath}
+            id={id}
           />
           <KVSeparator />
         </>
@@ -61,7 +64,7 @@ export function Entry(props: EntryProps) {
           parentPath={
             props.identifier === ROOT_IDENTIFIER
               ? ""
-              : generateId(props.parentPath, props.identifier)
+              : id
           }
         />
       )}
@@ -72,7 +75,7 @@ export function Entry(props: EntryProps) {
           parentPath={
             props.identifier === ROOT_IDENTIFIER
               ? ""
-              : generateId(props.parentPath, props.identifier)
+              : id
           }
           isLast={props.isLast}
         />
@@ -92,9 +95,9 @@ function KVSeparator() {
   return <span className={cx("kv-separator")}>:&nbsp;</span>;
 }
 
-function Identifier({ identifier, parentPath }: IdentifierProps) {
+function Identifier({ identifier, id }: IdentifierProps) {
   return (
-    <span className={cx("identifier")} id={generateId(parentPath, identifier)}>
+    <span className={cx("identifier")} id={id}>
       {typeof identifier === "number" ? `[${identifier}]` : `"${identifier}"`}
     </span>
   );

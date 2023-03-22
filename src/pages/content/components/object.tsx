@@ -3,7 +3,7 @@ import style from "./object.module.css";
 import { Entry } from "./entry";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { UrlContext, UrlProvider } from "../context/url";
-import { jsonTreeCache } from "../store";
+import { jsonTreeCache } from "../cache";
 import { useQuery } from "../hooks";
 import { get } from "@src/utils/json/pointer";
 import { EntryProps, JsonValue, ObjectComponentProps } from "@src/types";

@@ -23,7 +23,7 @@ export function getJsonType(value: JsonValue): JsonType {
 }
 
 export function isLiteral(value: JsonValue): value is Literal {
-  return typeof value !== "object";
+  return value === null || typeof value !== "object";
 }
 
 export function isObject(value: JsonValue): value is JsonObject {

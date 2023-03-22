@@ -12,7 +12,7 @@ export type EntryProps = CommonValueProps & {
 
 export type IdentifierProps = {
   identifier: Identifier;
-  parentPath: string;
+  id: string;
 };
 
 
