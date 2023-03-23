@@ -11,13 +11,12 @@ export function createStore<T extends object>(
   initializer: StoreInitializer<T>
 ): UseStore<T> {
   let store = initializer(set);
-  let pendingUpdate;
+  let pendingUpdate = false;
   const listeners = new Set<() => void>();
   function set(setter: PartialSetter<T>) {
     store = { ...store, ...setter(store) };
     if (!pendingUpdate) {
       queueMicrotask(() => {
-        console.log("calling listeners", listeners.size);
         for (const listener of listeners) {
           listener();
         }
