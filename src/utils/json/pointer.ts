@@ -36,6 +36,7 @@ function compilePointer(pointer: string): string[] {
 }
 
 export function get(obj: JsonValue, pointer: string): JsonValue {
+  if(pointer === "" || pointer === "/") return obj;
   const compiled = compilePointer(pointer);
   const len = compiled.length;
   if (len === 1) return obj;

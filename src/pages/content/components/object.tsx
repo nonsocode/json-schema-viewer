@@ -92,7 +92,13 @@ export function ObjectComponent(props: ObjectComponentProps) {
   return (
     <>
       <ObjectOpener />
-      {!!$ref && <RefButton onClick={onClick} toggled={derrefed} />}
+      {!!$ref && (
+        <RefButton
+          onClick={onClick}
+          toggled={derrefed}
+          className={cx({ "object-hidden": !props.expanded })}
+        />
+      )}
       <div className={cx("object-block", { "object-hidden": !props.expanded })}>
         {derrefed && nodesFromRef.length && (
           <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
@@ -128,11 +134,12 @@ type RefButtonProps = {
   disabled?: boolean;
   toggled?: boolean;
   onClick: () => void;
+  className?: string;
 };
 function RefButton(props: RefButtonProps) {
   return (
     <button
-      className={cx("ref-button", { toggled: props.toggled })}
+      className={cx("ref-button", { toggled: props.toggled }, props.className)}
       onClick={props.onClick}
       disabled={props.disabled}
     ></button>
