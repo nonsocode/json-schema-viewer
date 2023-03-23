@@ -16,12 +16,16 @@ import {
   JsonValue,
   Literal,
 } from "@src/types";
-import { forwardRef, useCallback, useMemo } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+} from "react";
 import { getJsonType, isLiteral } from "@src/utils/json";
 import { useCollapsed } from "../store";
 const cx = classnames.bind(styles);
-
-
 
 export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
   props: EntryProps,
@@ -31,6 +35,7 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
     () => generateId(props.parentPath, props.identifier),
     [props.parentPath, props.identifier]
   );
+  const childCollapsible = useRef<CollapsibleRef>(null);
   const expanded = useCollapsed((state) => !state.collapsed.has(id));
   const expand = useCollapsed((state) => state.expand);
   const collapse = useCollapsed((state) => state.collapse);
@@ -49,14 +54,43 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
     );
   }, []);
 
-  const handleExpand = useCallback(() => {
-    expanded ? collapse(id) : expand(id);
-  }, [expanded, expand, collapse, id]);
+  const handleExpand = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if(e.altKey && e.shiftKey) {
+        return expanded ? childCollapsible.current?.downwardsCollapse() : childCollapsible.current?.downwardsExpand();
+      }
+      if(e.altKey) {
+        return expanded ? downwardsCollapse() : downwardsExpand();
+      }
+      expanded ? collapse(id) : expand(id);
+    },
+    [expanded, expand, collapse, id]
+  );
 
   const downwardsCollapse = useCallback(() => {
-    if (valueIsLiteral) { return; }
-
+    if (valueIsLiteral) {
+      return;
+    }
+    if (childCollapsible.current) {
+      childCollapsible.current.downwardsCollapse();
+    }
+    collapse(id);
   }, [valueIsLiteral]);
+
+  const downwardsExpand = useCallback(() => {
+    if (valueIsLiteral) {
+      return;
+    }
+    if (childCollapsible.current) {
+      childCollapsible.current.downwardsExpand();
+    }
+    expand(id);
+  }, [valueIsLiteral]);
+
+  useImperativeHandle(ref, () => ({
+    downwardsCollapse,
+    downwardsExpand,
+  }));
 
   return (
     <div className={cx("entry")}>
@@ -75,6 +109,7 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
           expanded={expanded}
           isLast={props.isLast}
           parentPath={props.identifier === ROOT_IDENTIFIER ? "" : id}
+          ref={childCollapsible}
         />
       )}
       {type === "array" && (
@@ -83,6 +118,7 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
           expanded={expanded}
           parentPath={props.identifier === ROOT_IDENTIFIER ? "" : id}
           isLast={props.isLast}
+          ref={childCollapsible}
         />
       )}
       {valueIsLiteral && (

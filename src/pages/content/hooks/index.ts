@@ -1,6 +1,10 @@
-import { useCallback, useState } from "react";
+import { CollapsibleRef, JsonValue } from "@src/types";
+import { isLiteral } from "@src/utils/json";
+import { Ref, useCallback, useImperativeHandle, useRef, useState } from "react";
 
-type UseQueryFn<Args extends unknown[], T extends unknown> = (...args: Args) => Promise<T>;
+type UseQueryFn<Args extends unknown[], T extends unknown> = (
+  ...args: Args
+) => Promise<T>;
 
 type UseQuery<Args extends unknown[], T extends unknown> = {
   data: T | undefined;
@@ -10,7 +14,7 @@ type UseQuery<Args extends unknown[], T extends unknown> = {
 };
 
 export function useQuery<Args extends unknown[], T extends unknown>(
-  fn: UseQueryFn<Args, T>,
+  fn: UseQueryFn<Args, T>
 ): UseQuery<Args, T> {
   const [data, setData] = useState<T>();
   const [error, setError] = useState<Error>();
@@ -29,8 +33,49 @@ export function useQuery<Args extends unknown[], T extends unknown>(
         setLoading(false);
       }
     },
-    [fn],
+    [fn]
   );
 
   return { data, error, loading, query };
+}
+
+export function useCollapsibles(
+  ref: Ref<CollapsibleRef>
+): [
+  Map<string | number, CollapsibleRef>,
+  (ref: CollapsibleRef, key: string | number, value: JsonValue) => void
+] {
+  const collapsibles = useRef<Map<string | number, CollapsibleRef>>(new Map());
+  const downwardsCollapse = useCallback(() => {
+    if (collapsibles.current.size === 0) return;
+    for (const collapsible of collapsibles.current.values()) {
+      collapsible.downwardsCollapse();
+    }
+  }, [collapsibles]);
+
+  const downwardsExpand = useCallback(() => {
+    if (collapsibles.current.size === 0) return;
+    for (const collapsible of collapsibles.current.values()) {
+      collapsible.downwardsExpand();
+    }
+  }, [collapsibles]);
+
+  useImperativeHandle(ref, () => ({
+    downwardsCollapse,
+    downwardsExpand,
+  }));
+
+  const createEntryRef = useCallback(
+    (ref: CollapsibleRef, key: string | number, value: JsonValue) => {
+      if (ref && isLiteral(value)) return;
+      if (ref) {
+        collapsibles.current.set(key, ref);
+      } else {
+        collapsibles.current.delete(key);
+      }
+    },
+    [collapsibles]
+  );
+
+  return [collapsibles.current, createEntryRef];
 }

@@ -43,4 +43,5 @@ export type SummaryProps = {
 
 export type CollapsibleRef = {
   downwardsCollapse(): void;
+  downwardsExpand(): void;
 };

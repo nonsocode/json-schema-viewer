@@ -11,10 +11,20 @@ export function createStore<T extends object>(
   initializer: StoreInitializer<T>
 ): UseStore<T> {
   let store = initializer(set);
+  let pendingUpdate;
   const listeners = new Set<() => void>();
   function set(setter: PartialSetter<T>) {
     store = { ...store, ...setter(store) };
-    listeners.forEach((listener) => {listener()});
+    if (!pendingUpdate) {
+      queueMicrotask(() => {
+        console.log("calling listeners", listeners.size);
+        for (const listener of listeners) {
+          listener();
+        }
+        pendingUpdate = false;
+      });
+    }
+    pendingUpdate = true;
   }
   function useStore<R extends unknown>(selector: Selector<T, R>): R {
     const [value, setValue] = useState(() => selector(store));
