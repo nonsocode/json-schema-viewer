@@ -24,3 +24,7 @@
 .ref-button.toggled:before{
   content: "re-ref"
 }
+
+.object-hidden {
+  display: none;
+}

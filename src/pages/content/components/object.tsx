@@ -83,40 +83,33 @@ export function ObjectComponent(props: ObjectComponentProps) {
   }, [derrefed, data]);
 
   const summary: string = useMemo(() => {
-    if(derrefed) {
-      const totalNodes = nodesFromRef.length + nodes.length
-      return `${totalNodes} item${totalNodes > 1 ? "s" : ""}`
+    if (derrefed) {
+      const totalNodes = nodesFromRef.length + nodes.length;
+      return `${totalNodes} item${totalNodes > 1 ? "s" : ""}`;
     }
-    return `${nodes.length} item${nodes.length > 1 ? "s" : ""}`
-  }, [nodes, nodesFromRef, derrefed])
+    return `${nodes.length} item${nodes.length > 1 ? "s" : ""}`;
+  }, [nodes, nodesFromRef, derrefed]);
   return (
     <>
       <ObjectOpener />
-      {props.expanded ? (
-        <>
-          {!!$ref && <RefButton onClick={onClick} toggled={derrefed} />}
-          <div className={cx("object-block")}>
-            {derrefed && nodesFromRef.length && (
-              <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
-                {nodesFromRef.map((prop, index) => (
-                  <Entry
-                    key={`${index}-${prop.identifier}`}
-                    {...prop}
-                    isLast={
-                      index === nodesFromRef.length - 1 && nodes.length === 0
-                    }
-                  />
-                ))}
-              </UrlProvider>
-            )}
-            {nodes.map((prop, index) => (
-              <Entry key={`${index}-${prop.identifier}`} {...prop} />
+      {!!$ref && <RefButton onClick={onClick} toggled={derrefed} />}
+      <div className={cx("object-block", { "object-hidden": !props.expanded })}>
+        {derrefed && nodesFromRef.length && (
+          <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
+            {nodesFromRef.map((prop, index) => (
+              <Entry
+                key={`${index}-${prop.identifier}`}
+                {...prop}
+                isLast={index === nodesFromRef.length - 1 && nodes.length === 0}
+              />
             ))}
-          </div>
-        </>
-      ) : (
-        <Elipsis />
-      )}
+          </UrlProvider>
+        )}
+        {nodes.map((prop, index) => (
+          <Entry key={`${index}-${prop.identifier}`} {...prop} />
+        ))}
+      </div>
+      <Elipsis className={cx({ "object-hidden": props.expanded })} />
       <ObjectCloser />
       {props.isLast ? "" : ","}
       {!props.expanded && <Summary content={summary} />}

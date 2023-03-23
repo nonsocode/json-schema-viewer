@@ -6,6 +6,7 @@ import styles from "./entry.module.css";
 import { ROOT_IDENTIFIER } from "../constants";
 import { escape } from "@src/utils/json/pointer";
 import {
+  CollapsibleRef,
   EntryProps,
   ExpandedButtonProps,
   Identifier as Identity,
@@ -15,15 +16,24 @@ import {
   JsonValue,
   Literal,
 } from "@src/types";
-import { useCallback, useMemo } from "react";
+import { forwardRef, useCallback, useMemo } from "react";
 import { getJsonType, isLiteral } from "@src/utils/json";
 import { useCollapsed } from "../store";
 const cx = classnames.bind(styles);
 
-export function Entry(props: EntryProps) {
-  const id = useMemo(() => generateId(props.parentPath, props.identifier), [props.parentPath, props.identifier])
-  const expanded = useCollapsed(state => !state.collapsed.has(id))
-  const toggleCollapsed = useCollapsed(state => state.toggleCollapsed)
+
+
+export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
+  props: EntryProps,
+  ref
+) {
+  const id = useMemo(
+    () => generateId(props.parentPath, props.identifier),
+    [props.parentPath, props.identifier]
+  );
+  const expanded = useCollapsed((state) => !state.collapsed.has(id));
+  const expand = useCollapsed((state) => state.expand);
+  const collapse = useCollapsed((state) => state.collapse);
   const type = useMemo(() => {
     return getJsonType(props.value);
   }, [props.value]);
@@ -40,8 +50,14 @@ export function Entry(props: EntryProps) {
   }, []);
 
   const handleExpand = useCallback(() => {
-    toggleCollapsed(id)
-  }, [toggleCollapsed, id]);
+    expanded ? collapse(id) : expand(id);
+  }, [expanded, expand, collapse, id]);
+
+  const downwardsCollapse = useCallback(() => {
+    if (valueIsLiteral) { return; }
+
+  }, [valueIsLiteral]);
+
   return (
     <div className={cx("entry")}>
       {!valueIsLiteral && (
@@ -49,10 +65,7 @@ export function Entry(props: EntryProps) {
       )}
       {showIdentifier && (
         <>
-          <Identifier
-            identifier={props.identifier}
-            id={id}
-          />
+          <Identifier identifier={props.identifier} id={id} />
           <KVSeparator />
         </>
       )}
@@ -61,22 +74,14 @@ export function Entry(props: EntryProps) {
           node={props.value as JsonObject}
           expanded={expanded}
           isLast={props.isLast}
-          parentPath={
-            props.identifier === ROOT_IDENTIFIER
-              ? ""
-              : id
-          }
+          parentPath={props.identifier === ROOT_IDENTIFIER ? "" : id}
         />
       )}
       {type === "array" && (
         <ArrayComponent
           node={props.value as JsonArray}
           expanded={expanded}
-          parentPath={
-            props.identifier === ROOT_IDENTIFIER
-              ? ""
-              : id
-          }
+          parentPath={props.identifier === ROOT_IDENTIFIER ? "" : id}
           isLast={props.isLast}
         />
       )}
@@ -85,7 +90,7 @@ export function Entry(props: EntryProps) {
       )}
     </div>
   );
-}
+});
 
 function generateId(parentPath: string, identifier: Identity) {
   return `${parentPath}/${escape(identifier.toString())}`;

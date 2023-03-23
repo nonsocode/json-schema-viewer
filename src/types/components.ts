@@ -40,3 +40,7 @@ export type ExpandedButtonProps = {
 export type SummaryProps = {
   content: string;
 }
+
+export type CollapsibleRef = {
+  downwardsCollapse(): void;
+};
