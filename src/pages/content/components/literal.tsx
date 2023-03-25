@@ -2,13 +2,13 @@ import classnames from "classnames/bind";
 import styles from "./literal.module.css";
 import { LiteralNode } from "json-to-ast";
 import { isUrl } from "@src/utils/url";
-import { useContext, useMemo } from "react";
+import { memo, useContext, useMemo } from "react";
 import { UrlContext } from "../context/url";
 import { Literal, LiteralComponentProps } from "@src/types";
 import { getJsonType } from "@src/utils/json";
 const cx = classnames.bind(styles);
 
-export function LiteralComponent(props: LiteralComponentProps) {
+export const LiteralComponent = memo(function LiteralComponent(props: LiteralComponentProps) {
   let data;
   switch (getJsonType(props.node)) {
     case "number":
@@ -35,7 +35,7 @@ export function LiteralComponent(props: LiteralComponentProps) {
       {data}{props.isLast ? "" : ","}
     </>
   );
-}
+})
 type StringComponentProps = {
   node: string;
 };
