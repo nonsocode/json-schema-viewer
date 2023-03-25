@@ -3,6 +3,7 @@ import style from "./object.module.css";
 import { Entry } from "./entry";
 import {
   forwardRef,
+  memo,
   useCallback,
   useContext,
   useImperativeHandle,
@@ -20,12 +21,12 @@ import {
   JsonValue,
   ObjectComponentProps,
 } from "@src/types";
-import { getJsonType, isLiteral } from "@src/utils/json";
+import { getJsonType } from "@src/utils/json";
 import { Elipsis } from "./elipsis";
 import { Summary } from "./summary";
 const cx = classnames.bind(style);
 
-export const ObjectComponent = forwardRef<CollapsibleRef, ObjectComponentProps>(
+export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentProps>(
   function ObjectComponent(props: ObjectComponentProps, ref) {
     const $ref: string | undefined = useMemo(() => {
       if (props.node["$ref"] && typeof props.node["$ref"] === "string")
@@ -154,7 +155,7 @@ export const ObjectComponent = forwardRef<CollapsibleRef, ObjectComponentProps>(
       </>
     );
   }
-);
+));
 
 function ObjectOpener() {
   return <span className={cx("object-opener")}>{"{"}</span>;
