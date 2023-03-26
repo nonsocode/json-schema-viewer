@@ -3,5 +3,5 @@ import classnames from "classnames/bind";
 import style from "./summary.module.css";
 const cx = classnames.bind(style);
 export function Summary({content}: SummaryProps) {
-  return <span className={cx("summary")} style={{'--content': `"// ${content}"`}}></span>;
+  return <span class={cx("summary")} style={{'--content': `"// ${content}"`}}></span>;
 }

@@ -1,16 +1,6 @@
 import classnames from "classnames/bind";
 import style from "./object.module.css";
 import { Entry } from "./entry";
-import {
-  forwardRef,
-  memo,
-  useCallback,
-  useContext,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
 import { UrlContext, UrlProvider } from "../context/url";
 import { jsonTreeCache } from "../cache";
 import { useCollapsibles, useQuery } from "../hooks";
@@ -20,160 +10,154 @@ import {
   EntryProps,
   JsonValue,
   ObjectComponentProps,
+  PropsWithRef,
 } from "@src/types";
 import { getJsonType } from "@src/utils/json";
 import { Elipsis } from "./elipsis";
 import { Summary } from "./summary";
+import {
+  Accessor,
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  useContext,
+} from "solid-js";
 const cx = classnames.bind(style);
 
-export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentProps>(
-  function ObjectComponent(props: ObjectComponentProps, ref) {
-    const $ref: string | undefined = useMemo(() => {
-      if (props.node["$ref"] && typeof props.node["$ref"] === "string")
-        return props.node["$ref"];
-    }, [props.node.children]);
+export const ObjectComponent = function ObjectComponent(
+  props: PropsWithRef<ObjectComponentProps, CollapsibleRef>
+) {
+  const $ref: () => string | undefined = createMemo(() => {
+    if (props.node["$ref"] && typeof props.node["$ref"] === "string")
+      return props.node["$ref"];
+  });
 
-    const entries: EntryProps[] = useMemo(() => {
-      return Object.entries(props.node).map<EntryProps>(
-        ([key, value], index, { length }) => ({
-          isLast: index === length - 1,
-          identifier: key,
-          value,
-          parentPath: props.parentPath,
-        })
-      );
-    }, [props.node.children]);
-
-    const urlContext = useContext(UrlContext);
-
-    const refUrl: URL = useMemo(() => {
-      if (!$ref) return;
-      let url: URL;
-      if ($ref.startsWith("#")) {
-        url = new URL(urlContext.fullPath);
-        url.hash = $ref;
-      } else {
-        url = new URL($ref);
-      }
-      return url;
-    }, [$ref]);
-
-    const [derrefed, setDerefed] = useState(false);
-
-    const { loading, query, error, data } = useQuery(fetchAndCache);
-
-    const onClick = useCallback(async () => {
-      if (!$ref) return;
-      if (!derrefed) await query(refUrl);
-      setDerefed(!derrefed);
-    }, [derrefed, $ref, query]);
-
-    const nodes: EntryProps[] = useMemo(() => {
-      if (derrefed) {
-        return entries.filter((prop) => prop.identifier !== "$ref");
-      } else {
-        return entries;
-      }
-    }, [derrefed, entries]);
-
-    const nodesFromRef: EntryProps[] = useMemo(() => {
-      if (!derrefed || error || loading || !data) {
-        return [];
-      }
-      if (getJsonType(data) !== "object") {
-        return [];
-      }
-      const nodes = get(data, refUrl.hash.slice(1) || "/");
-      if (!nodes || getJsonType(nodes) !== "object") {
-        return [];
-      }
-      return Object.entries(nodes).map(
-        ([identifier, value], index, { length }) => ({
-          value,
-          identifier,
-          parentPath: props.parentPath,
-          isLast: index === length - 1,
-        })
-      );
-    }, [derrefed, data]);
-
-    const summary: string = useMemo(() => {
-      if (derrefed) {
-        const totalNodes = nodesFromRef.length + nodes.length;
-        return `${totalNodes} item${totalNodes > 1 ? "s" : ""}`;
-      }
-      return `${nodes.length} item${nodes.length > 1 ? "s" : ""}`;
-    }, [nodes, nodesFromRef, derrefed]);
-
-    const [, createEntryRef] = useCollapsibles(ref);
-
-    return (
-      <>
-        <ObjectOpener />
-        {!!$ref && (
-          <RefButton
-            onClick={onClick}
-            toggled={derrefed}
-            className={cx({ "object-hidden": !props.expanded })}
-          />
-        )}
-        <div
-          className={cx("object-block", { "object-hidden": !props.expanded })}
-        >
-          {derrefed && nodesFromRef.length && (
-            <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
-              {nodesFromRef.map((prop, index) => {
-                const key = `${index}-${prop.identifier}`;
-                const isLast =
-                  index === nodesFromRef.length - 1 && nodes.length === 0;
-                return (
-                  <Entry
-                    key={key}
-                    {...prop}
-                    isLast={isLast}
-                    ref={(ref) => createEntryRef(ref, key, prop.value)}
-                  />
-                );
-              })}
-            </UrlProvider>
-          )}
-          {nodes.map((prop, index) => {
-            const key = `${index}-${prop.identifier}`;
-            return (
-              <Entry
-                key={key}
-                {...prop}
-                ref={(ref) => createEntryRef(ref, key, prop.value)}
-              />
-            );
-          })}
-        </div>
-        <Elipsis className={cx({ "object-hidden": props.expanded })} />
-        <ObjectCloser />
-        {props.isLast ? "" : ","}
-        {!props.expanded && <Summary content={summary} />}
-      </>
+  const entries: Accessor<EntryProps[]> = createMemo(() => {
+    return Object.entries(props.node).map<EntryProps>(
+      ([key, value], index, { length }) => ({
+        isLast: index === length - 1,
+        identifier: key,
+        value,
+        parentPath: props.parentPath,
+      })
     );
-  }
-));
+  });
+
+  const urlContext = useContext(UrlContext);
+
+  const refUrl: Accessor<URL> = createMemo(() => {
+    if (!$ref()) return;
+    let url: URL;
+    if ($ref().startsWith("#")) {
+      url = new URL(urlContext.fullPath);
+      url.hash = $ref();
+    } else {
+      url = new URL($ref());
+    }
+    return url;
+  });
+
+  const [derrefed, setDerefed] = createSignal(false);
+
+  const { loading, query, error, data } = useQuery(fetchAndCache);
+
+  const onClick = async () => {
+    if (!$ref) return;
+    if (!derrefed()) await query(refUrl());
+    setDerefed(!derrefed());
+  };
+
+  const nodes: Accessor<EntryProps[]> = createMemo(() => {
+    if (derrefed()) {
+      return entries().filter((prop) => prop.identifier !== "$ref");
+    } else {
+      return entries();
+    }
+  });
+
+  const nodesFromRef: Accessor<EntryProps[]> = createMemo(() => {
+    if (!derrefed() || error() || loading() || !data()) {
+      return [];
+    }
+    if (getJsonType(data()) !== "object") {
+      return [];
+    }
+    const nodes = get(data(), refUrl().hash.slice(1) || "/");
+    if (!nodes || getJsonType(nodes) !== "object") {
+      return [];
+    }
+    return Object.entries(nodes).map(
+      ([identifier, value], index, { length }) => ({
+        value,
+        identifier,
+        parentPath: props.parentPath,
+        isLast: index === length - 1,
+      })
+    );
+  });
+
+  const summary: Accessor<string> = createMemo(() => {
+    if (derrefed()) {
+      const totalNodes = nodesFromRef().length + nodes().length;
+      return `${totalNodes} item${totalNodes > 1 ? "s" : ""}`;
+    }
+    return `${nodes().length} item${nodes().length > 1 ? "s" : ""}`;
+  });
+
+  const createEntryRef = useCollapsibles(props.ref);
+
+  return (
+    <>
+      <ObjectOpener />
+      {!!$ref() && (
+        <RefButton
+          onClick={onClick}
+          toggled={derrefed()}
+          class={cx({ "object-hidden": !props.expanded })}
+        />
+      )}
+      <div class={cx("object-block", { "object-hidden": !props.expanded })}>
+        {derrefed() && nodesFromRef().length && (
+          <UrlProvider fullPath={refUrl().origin + refUrl().pathname}>
+            <For each={nodesFromRef()}>
+              {(prop, index) => {
+                const isLast =
+                  index() === nodesFromRef().length - 1 && nodes().length === 0;
+                return <Entry {...prop} isLast={isLast} ref={createEntryRef} />;
+              }}
+            </For>
+          </UrlProvider>
+        )}
+        <For each={nodes()}>
+          {(prop) => <Entry {...prop} ref={createEntryRef} />}
+        </For>
+      </div>
+      <Elipsis className={cx({ "object-hidden": props.expanded })} />
+      <ObjectCloser />
+      {props.isLast ? "" : ","}
+      {!props.expanded && <Summary content={summary()} />}
+    </>
+  );
+};
 
 function ObjectOpener() {
-  return <span className={cx("object-opener")}>{"{"}</span>;
+  return <span class={cx("object-opener")}>{"{"}</span>;
 }
 function ObjectCloser() {
-  return <span className={cx("object-closer")}>{"}"}</span>;
+  return <span class={cx("object-closer")}>{"}"}</span>;
 }
 
 type RefButtonProps = {
   disabled?: boolean;
   toggled?: boolean;
   onClick: () => void;
-  className?: string;
+  class?: string;
 };
 function RefButton(props: RefButtonProps) {
   return (
     <button
-      className={cx("ref-button", { toggled: props.toggled }, props.className)}
+      class={cx("ref-button", { toggled: props.toggled }, props.class)}
       onClick={props.onClick}
       disabled={props.disabled}
     ></button>

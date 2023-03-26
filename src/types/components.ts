@@ -1,5 +1,5 @@
-import React from "react";
 import { Identifier, JsonArray, JsonObject, JsonValue, Literal } from "./json";
+import { JSX } from "solid-js";
 
 export type CommonValueProps = {
   isLast: boolean;
@@ -15,7 +15,6 @@ export type IdentifierProps = {
   id: string;
 };
 
-
 export type ObjectComponentProps = CommonValueProps & {
   node: JsonObject;
   parentPath: string;
@@ -26,6 +25,7 @@ export type LiteralComponentProps = CommonValueProps & {
   node: Literal;
 };
 
+export type PropsWithRef<Props, Ref> = Props & { ref: (ref: Ref) => void };
 export type ArrayComponentProps = CommonValueProps & {
   node: JsonArray;
   expanded: boolean;
@@ -33,13 +33,13 @@ export type ArrayComponentProps = CommonValueProps & {
 };
 
 export type ExpandedButtonProps = {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
   isExpanded: boolean;
-}
+};
 
 export type SummaryProps = {
   content: string;
-}
+};
 
 export type CollapsibleRef = {
   downwardsCollapse(): void;

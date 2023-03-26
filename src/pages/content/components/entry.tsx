@@ -13,92 +13,72 @@ import {
   IdentifierProps,
   JsonArray,
   JsonObject,
-  Literal
+  Literal,
+  PropsWithRef,
 } from "@src/types";
 
-import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useMemo,
-  memo,
-  useRef,
-  useState,
-} from "react";
 import { getJsonType, isLiteral } from "@src/utils/json";
+import { createSignal } from "solid-js";
 
 const cx = classnames.bind(styles);
 
-export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
-  props: EntryProps,
-  ref
+export const Entry = function Entry(
+  props: PropsWithRef<EntryProps, CollapsibleRef>
 ) {
-  console.log("entry");
-  const id = useMemo(
-    () => generateId(props.parentPath, props.identifier),
-    [props.parentPath, props.identifier]
-  );
-  const childCollapsible = useRef<CollapsibleRef>(null);
+  const id = generateId(props.parentPath, props.identifier);
+  let childCollapsible: CollapsibleRef;
+
   const { expanded, expand, collapse } = useCollapsed();
-  const type = useMemo(() => {
-    return getJsonType(props.value);
-  }, [props.value]);
-  const valueIsLiteral = useMemo(() => {
-    return isLiteral(props.value);
-  }, [props.value]);
+  const type = getJsonType(props.value);
 
-  const showIdentifier = useMemo(() => {
-    return (
-      props.identifier !== undefined &&
-      props.identifier !== ROOT_IDENTIFIER &&
-      typeof props.identifier !== "number"
-    );
-  }, []);
+  const valueIsLiteral = isLiteral(props.value);
 
-  const handleExpand = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (e.altKey && e.shiftKey) {
-        return expanded
-          ? childCollapsible.current?.downwardsCollapse()
-          : childCollapsible.current?.downwardsExpand();
-      }
-      if (e.altKey) {
-        return expanded ? downwardsCollapse() : downwardsExpand();
-      }
-      expanded ? collapse() : expand();
-    },
-    [expanded, expand, collapse]
-  );
+  const showIdentifier =
+    props.identifier !== undefined &&
+    props.identifier !== ROOT_IDENTIFIER &&
+    typeof props.identifier !== "number";
 
-  const downwardsCollapse = useCallback(() => {
+  const handleExpand = (e: MouseEvent) => {
+    if (e.altKey && e.shiftKey) {
+      return expanded()
+        ? childCollapsible?.downwardsCollapse()
+        : childCollapsible?.downwardsExpand();
+    }
+    if (e.altKey) {
+      return expanded() ? downwardsCollapse() : downwardsExpand();
+    }
+    expanded() ? collapse() : expand();
+  };
+
+  const downwardsCollapse = () => {
     if (valueIsLiteral) {
       return;
     }
-    if (childCollapsible.current) {
-      childCollapsible.current.downwardsCollapse();
+    if (childCollapsible) {
+      childCollapsible.downwardsCollapse();
     }
     collapse();
-  }, [valueIsLiteral]);
+  };
 
-  const downwardsExpand = useCallback(() => {
+  const downwardsExpand = () => {
     if (valueIsLiteral) {
       return;
     }
-    if (childCollapsible.current) {
-      childCollapsible.current.downwardsExpand();
+    if (childCollapsible) {
+      childCollapsible.downwardsExpand();
     }
     expand();
-  }, [valueIsLiteral]);
+  };
 
-  useImperativeHandle(ref, () => ({
+  props.ref({
     downwardsCollapse,
     downwardsExpand,
-  }));
+  })
 
   return (
-    <div className={cx("entry")}>
+    <div class={cx("entry")}>
       {!valueIsLiteral && (
-        <ExpandButton onClick={handleExpand} isExpanded={expanded} />
+        <ExpandButton onClick={handleExpand} isExpanded={expanded()} />
       )}
       {showIdentifier && (
         <>
@@ -109,19 +89,23 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
       {type === "object" && (
         <ObjectComponent
           node={props.value as JsonObject}
-          expanded={expanded}
+          expanded={expanded()}
           isLast={props.isLast}
           parentPath={props.identifier === ROOT_IDENTIFIER ? "" : id}
-          ref={childCollapsible}
+          ref={(collapsible) => {
+            childCollapsible = collapsible;
+          }}
         />
       )}
       {type === "array" && (
         <ArrayComponent
           node={props.value as JsonArray}
-          expanded={expanded}
+          expanded={expanded()}
           parentPath={props.identifier === ROOT_IDENTIFIER ? "" : id}
           isLast={props.isLast}
-          ref={childCollapsible}
+          ref={(collapsible) => {
+            childCollapsible = collapsible;
+          }}
         />
       )}
       {valueIsLiteral && (
@@ -129,19 +113,19 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
       )}
     </div>
   );
-});
+};
 
 function generateId(parentPath: string, identifier: Identity) {
   return `${parentPath}/${escape(identifier.toString())}`;
 }
 
 function KVSeparator() {
-  return <span className={cx("kv-separator")}>:&nbsp;</span>;
+  return <span class={cx("kv-separator")}>:&nbsp;</span>;
 }
 
 function Identifier({ identifier, id }: IdentifierProps) {
   return (
-    <span className={cx("identifier")} id={id}>
+    <span class={cx("identifier")} id={id}>
       {typeof identifier === "number" ? `[${identifier}]` : `"${identifier}"`}
     </span>
   );
@@ -150,19 +134,19 @@ function Identifier({ identifier, id }: IdentifierProps) {
 function ExpandButton(props: ExpandedButtonProps) {
   return (
     <button
-      className={cx("expand-button", { expanded: props.isExpanded })}
+      class={cx("expand-button", { expanded: props.isExpanded })}
       onClick={props.onClick}
     ></button>
   );
 }
 
 function useCollapsed() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = createSignal(false);
 
   return {
     collapsed,
-    expanded: !collapsed,
-    expand: useCallback(() => setCollapsed(false), []),
-    collapse: useCallback(() => setCollapsed(true), []),
+    expanded: () => !collapsed(),
+    expand: () => setCollapsed(false),
+    collapse: () => setCollapsed(true),
   };
 }

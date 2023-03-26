@@ -1,51 +1,50 @@
 import { Entry } from "./entry";
 import classnames from "classnames/bind";
 import styles from "./array.module.css";
-import { ArrayComponentProps, CollapsibleRef } from "@src/types";
+import { ArrayComponentProps, CollapsibleRef, PropsWithRef } from "@src/types";
 import { Summary } from "./summary";
 import { Elipsis } from "./elipsis";
-import { forwardRef, memo } from "react";
 import { useCollapsibles } from "../hooks";
+import { For } from "solid-js";
 const cx = classnames.bind(styles);
 
-export const ArrayComponent = memo(forwardRef<CollapsibleRef, ArrayComponentProps>(
-  function ArrayComponent(props, ref) {
-    const summary = `${props.node.length} item${
-      props.node.length > 1 ? "s" : ""
-    }`;
+export const ArrayComponent = function ArrayComponent(props: PropsWithRef<ArrayComponentProps, CollapsibleRef>) {
+  const summary = `${props.node.length} item${
+    props.node.length > 1 ? "s" : ""
+  }`;
 
-    const [, createEntryRef] = useCollapsibles(ref);
-    return (
-      <>
-        <ArrayOpener />
-        <div
-          className={cx("array-block", {
-            "array-block-hidden": !props.expanded,
-          })}
-        >
-          {props.node.map((prop, index) => (
+  const  createEntryRef = useCollapsibles(props.ref);
+  return (
+    <>
+      <ArrayOpener />
+      <div
+        class={cx("array-block", {
+          "array-block-hidden": !props.expanded,
+        })}
+      >
+        <For each={props.node}>
+          {(prop, index) => (
             <Entry
-              key={index}
               value={prop}
-              identifier={index}
-              isLast={index === props.node.length - 1}
+              identifier={index()}
+              isLast={index() === props.node.length - 1}
               parentPath={props.parentPath}
-              ref={(ref) => createEntryRef(ref, index, prop)}
+              ref={createEntryRef}
             />
-          ))}
-        </div>
-        <Elipsis className={cx({ "array-block-hidden": props.expanded })} />
-        <ArrayCloser />
-        {props.isLast ? "" : ","}
-        {!props.expanded && <Summary content={summary} />}
-      </>
-    );
-  }
-));
+          )}
+        </For>
+      </div>
+      <Elipsis className={cx({ "array-block-hidden": props.expanded })} />
+      <ArrayCloser />
+      {props.isLast ? "" : ","}
+      {!props.expanded && <Summary content={summary} />}
+    </>
+  );
+};
 
 export function ArrayOpener() {
-  return <span className={cx("array-opener")}>[</span>;
+  return <span class={cx("array-opener")}>[</span>;
 }
 export function ArrayCloser() {
-  return <span className={cx("array-closer")}>]</span>;
+  return <span class={cx("array-closer")}>]</span>;
 }

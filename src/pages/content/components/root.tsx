@@ -1,5 +1,5 @@
-import { createRoot } from "react-dom/client";
 import App from "@src/pages/content/components/app";
+import { render } from "solid-js/web";
 
 export function createApp() {
   const root = document.createElement("div");
@@ -7,5 +7,5 @@ export function createApp() {
   defaultPre.style.display = "none";
   document.body.append(root);
 
-  createRoot(root).render(<App jsonString={defaultPre.textContent} />);
+  render(() => <App jsonString={defaultPre.textContent} />, root);
 }

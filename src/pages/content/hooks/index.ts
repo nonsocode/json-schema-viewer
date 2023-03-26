@@ -1,81 +1,62 @@
-import { CollapsibleRef, JsonValue } from "@src/types";
-import { isLiteral } from "@src/utils/json";
-import { Ref, useCallback, useImperativeHandle, useRef, useState } from "react";
+import { CollapsibleRef } from "@src/types";
+import { Accessor, createSignal } from "solid-js";
 
 type UseQueryFn<Args extends unknown[], T extends unknown> = (
   ...args: Args
 ) => Promise<T>;
 
 type UseQuery<Args extends unknown[], T extends unknown> = {
-  data: T | undefined;
-  error: Error | undefined;
-  loading: boolean;
+  data: Accessor<T | undefined>;
+  error: Accessor<Error | undefined>;
+  loading: Accessor<boolean>;
   query: UseQueryFn<Args, T>;
 };
 
 export function useQuery<Args extends unknown[], T extends unknown>(
   fn: UseQueryFn<Args, T>
 ): UseQuery<Args, T> {
-  const [data, setData] = useState<T>();
-  const [error, setError] = useState<Error>();
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = createSignal<T>();
+  const [error, setError] = createSignal<Error>();
+  const [loading, setLoading] = createSignal(false);
 
-  const query = useCallback<UseQueryFn<Args, T>>(
-    async (...args) => {
-      setLoading(true);
-      try {
-        const result = await fn(...args);
-        setData(result);
-        return result;
-      } catch (e) {
-        setError(e);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [fn]
-  );
+  const query: UseQueryFn<Args, T> = async (...args) => {
+    setLoading(true);
+    try {
+      const result = await fn(...args);
+      setData(result as any);
+      return result;
+    } catch (e) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return { data, error, loading, query };
 }
 
-export function useCollapsibles(
-  ref: Ref<CollapsibleRef>
-): [
-  Map<string | number, CollapsibleRef>,
-  (ref: CollapsibleRef, key: string | number, value: JsonValue) => void
-] {
-  const collapsibles = useRef<Map<string | number, CollapsibleRef>>(new Map());
-  const downwardsCollapse = useCallback(() => {
-    if (collapsibles.current.size === 0) return;
-    for (const collapsible of collapsibles.current.values()) {
+export function useCollapsibles(ref: (ref: CollapsibleRef) => void) {
+  const collapsibles = new Set<CollapsibleRef>();
+  const downwardsCollapse = () => {
+    if (collapsibles.size === 0) return;
+    for (const collapsible of collapsibles) {
       collapsible.downwardsCollapse();
     }
-  }, [collapsibles]);
+  };
 
-  const downwardsExpand = useCallback(() => {
-    if (collapsibles.current.size === 0) return;
-    for (const collapsible of collapsibles.current.values()) {
+  const downwardsExpand = () => {
+    if (collapsibles.size === 0) return;
+    for (const collapsible of collapsibles) {
       collapsible.downwardsExpand();
     }
-  }, [collapsibles]);
+  };
 
-  useImperativeHandle(ref, () => ({
+  ref({
     downwardsCollapse,
     downwardsExpand,
-  }));
+  });
 
-  const createEntryRef = useCallback(
-    (ref: CollapsibleRef, key: string | number, value: JsonValue) => {
-      if (ref && isLiteral(value)) return;
-      if (ref) {
-        collapsibles.current.set(key, ref);
-      } else {
-        collapsibles.current.delete(key);
-      }
-    },
-    [collapsibles]
-  );
-
-  return [collapsibles.current, createEntryRef];
+  return (ref: CollapsibleRef) => {
+    collapsibles.add(ref);
+  };
 }
