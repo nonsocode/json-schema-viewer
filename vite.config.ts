@@ -45,6 +45,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         content: resolve(pagesDir, "content", "index.ts"),
+        root: resolve(pagesDir, "content","components", "root.tsx"),
         font: resolve(assetsDir, "fonts", "RobotoMono-Regular.ttf"),
         background: resolve(pagesDir, "background", "index.ts"),
       },

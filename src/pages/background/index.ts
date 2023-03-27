@@ -8,4 +8,13 @@ reloadOnUpdate("pages/background");
  */
 reloadOnUpdate("pages/content");
 
-console.log("background loaded");
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message.type === "inject-app") {
+    chrome.scripting.executeScript({
+      target: { tabId: sender.tab.id },
+      files: ["src/pages/root/index.js"]
+    }).then(() => {
+      chrome.tabs.sendMessage(sender.tab.id, { type: "start-app" });
+    });
+  }
+});

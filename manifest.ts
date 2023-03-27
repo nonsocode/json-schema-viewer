@@ -37,6 +37,7 @@ const manifest: chrome.runtime.ManifestV3 = {
     },
   ],
   host_permissions: ["*://*/*", "<all_urls>"],
+  permissions: ["activeTab", "scripting"],
 };
 
 export default manifest;

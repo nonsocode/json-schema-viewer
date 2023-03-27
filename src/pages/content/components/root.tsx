@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "@src/pages/content/components/app";
 
-export function createApp() {
+function createApp() {
   const root = document.createElement("div");
   const defaultPre: HTMLPreElement = document.querySelector("body > pre");
   defaultPre.style.display = "none";
@@ -9,3 +9,6 @@ export function createApp() {
 
   createRoot(root).render(<App jsonString={defaultPre.textContent} />);
 }
+
+
+createApp()

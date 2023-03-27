@@ -55,7 +55,7 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
 
   const handleExpand = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (e.altKey && e.shiftKey) {
+      if ( e.shiftKey) {
         return expanded
           ? childCollapsible.current?.downwardsCollapse()
           : childCollapsible.current?.downwardsExpand();
