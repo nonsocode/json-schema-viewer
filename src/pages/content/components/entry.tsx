@@ -33,7 +33,6 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
   props: EntryProps,
   ref
 ) {
-  console.log("entry");
   const id = useMemo(
     () => generateId(props.parentPath, props.identifier),
     [props.parentPath, props.identifier]
