@@ -59,6 +59,6 @@ function StringComponent(props: StringComponentProps) {
       "{props.node}"
     </a>
   ) : (
-    <span className={cx("string-value")}>"{props.node}"</span>
+    <span className={cx("string-value")}>"{props.node.replaceAll('"', '\\"')}"</span>
   );
 }

@@ -26,8 +26,11 @@ import { Elipsis } from "./elipsis";
 import { Summary } from "./summary";
 const cx = classnames.bind(style);
 
-export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentProps>(
-  function ObjectComponent(props: ObjectComponentProps, ref) {
+export const ObjectComponent = memo(
+  forwardRef<CollapsibleRef, ObjectComponentProps>(function ObjectComponent(
+    props: ObjectComponentProps,
+    ref
+  ) {
     const $ref: string | undefined = useMemo(() => {
       if (props.node["$ref"] && typeof props.node["$ref"] === "string")
         return props.node["$ref"];
@@ -49,11 +52,10 @@ export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentPr
     const refUrl: URL = useMemo(() => {
       if (!$ref) return;
       let url: URL;
-      if ($ref.startsWith("#")) {
-        url = new URL(urlContext.fullPath);
-        url.hash = $ref;
-      } else {
+      if ($ref.startsWith("http")) {
         url = new URL($ref);
+      } else {
+        url = new URL($ref, urlContext.fullPath);
       }
       return url;
     }, [$ref]);
@@ -154,9 +156,8 @@ export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentPr
         {!props.expanded && <Summary content={summary} />}
       </>
     );
-  }
-));
-
+  })
+);
 
 type RefButtonProps = {
   disabled?: boolean;
