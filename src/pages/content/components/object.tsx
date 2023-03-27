@@ -109,7 +109,7 @@ export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentPr
 
     return (
       <>
-        <ObjectOpener />
+        <span className={cx("object-opener")}>{"{"}</span>
         {!!$ref && (
           <RefButton
             onClick={onClick}
@@ -149,7 +149,7 @@ export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentPr
           })}
         </div>
         <Elipsis className={cx({ "object-hidden": props.expanded })} />
-        <ObjectCloser />
+        <span className={cx("object-closer")}>{"}"}</span>
         {props.isLast ? "" : ","}
         {!props.expanded && <Summary content={summary} />}
       </>
@@ -157,12 +157,6 @@ export const ObjectComponent = memo(forwardRef<CollapsibleRef, ObjectComponentPr
   }
 ));
 
-function ObjectOpener() {
-  return <span className={cx("object-opener")}>{"{"}</span>;
-}
-function ObjectCloser() {
-  return <span className={cx("object-closer")}>{"}"}</span>;
-}
 
 type RefButtonProps = {
   disabled?: boolean;

@@ -17,7 +17,7 @@ export const ArrayComponent = memo(forwardRef<CollapsibleRef, ArrayComponentProp
     const [, createEntryRef] = useCollapsibles(ref);
     return (
       <>
-        <ArrayOpener />
+        <span className={cx("array-opener")}>[</span>
         <div
           className={cx("array-block", {
             "array-block-hidden": !props.expanded,
@@ -35,17 +35,10 @@ export const ArrayComponent = memo(forwardRef<CollapsibleRef, ArrayComponentProp
           ))}
         </div>
         <Elipsis className={cx({ "array-block-hidden": props.expanded })} />
-        <ArrayCloser />
+        <span className={cx("array-closer")}>]</span>
         {props.isLast ? "" : ","}
         {!props.expanded && <Summary content={summary} />}
       </>
     );
   }
 ));
-
-export function ArrayOpener() {
-  return <span className={cx("array-opener")}>[</span>;
-}
-export function ArrayCloser() {
-  return <span className={cx("array-closer")}>]</span>;
-}
