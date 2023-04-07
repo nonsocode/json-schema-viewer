@@ -7,8 +7,19 @@ function isJsonDocument() {
     document.contentType === "text/plain" &&
     document.body.querySelector(":scope > pre")
   )
-    return true;
+    return isValidJsonContent(
+      document.body.querySelector(":scope > pre").textContent
+    );
 }
+function isValidJsonContent(content) {
+  try {
+    JSON.parse(content);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 import("./update");
 isJsonDocument() &&
   // For secure contexts, we can't import the app directly
