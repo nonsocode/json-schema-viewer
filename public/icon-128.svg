@@ -1,0 +1,9 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <style bx:fonts="Fragment Mono">@import url(https://fonts.googleapis.com/css2?family=Fragment+Mono%3Aital%2Cwght%400%2C400%3B1%2C400&amp;display=swap);</style>
+  </defs>
+  <rect x="7.607" y="7.944" width="111.606" height="111.606" style="fill: rgb(255, 255, 255); paint-order: stroke; stroke: rgb(124, 124, 124); stroke-width: 14px;" rx="25.206" ry="25.206"></rect>
+  <text style="fill: rgb(51, 51, 51); font-family: &quot;Fragment Mono&quot;; font-size: 73.1px; font-weight: 700; white-space: pre;" x="4.039" y="90.081">{</text>
+  <text style="fill: rgb(51, 51, 51); font-family: &quot;Fragment Mono&quot;; font-size: 73.1px; font-weight: 700; white-space: pre;" x="77.578" y="88.409">}</text>
+  <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(159, 159, 159); stroke-width: 7px;" cx="63.409" cy="63.747" rx="21.945" ry="21.945"></ellipse>
+</svg>

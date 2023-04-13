@@ -1,14 +1,15 @@
 import classnames from "classnames/bind";
 import styles from "./literal.module.css";
-import { LiteralNode } from "json-to-ast";
 import { isUrl } from "@src/utils/url";
 import { memo, useContext, useMemo } from "react";
 import { UrlContext } from "../context/url";
-import { Literal, LiteralComponentProps } from "@src/types";
+import { LiteralComponentProps } from "@src/types";
 import { getJsonType } from "@src/utils/json";
 const cx = classnames.bind(styles);
 
-export const LiteralComponent = memo(function LiteralComponent(props: LiteralComponentProps) {
+export const LiteralComponent = memo(function LiteralComponent(
+  props: LiteralComponentProps
+) {
   let data;
   switch (getJsonType(props.node)) {
     case "number":
@@ -32,10 +33,11 @@ export const LiteralComponent = memo(function LiteralComponent(props: LiteralCom
   }
   return (
     <>
-      {data}{props.isLast ? "" : ","}
+      {data}
+      {props.isLast ? "" : ","}
     </>
   );
-})
+});
 type StringComponentProps = {
   node: string;
 };
@@ -43,14 +45,16 @@ function StringComponent(props: StringComponentProps) {
   const urlContext = useContext(UrlContext);
   const url = useMemo(() => {
     if (!isUrl(props.node)) return null;
-    let url: URL;
+    let url: URL = null;
     const partialUrl = props.node;
-    if (partialUrl.startsWith("#")) {
-      url = new URL(urlContext.fullPath);
-      url.hash = partialUrl;
-    } else {
-      url = new URL(partialUrl);
-    }
+    try {
+      if (partialUrl.startsWith("#")) {
+        url = new URL(urlContext.fullPath);
+        url.hash = partialUrl;
+      } else {
+        url = new URL(partialUrl);
+      }
+    } catch (e) {}
     return url;
   }, [urlContext.fullPath, props.node]);
 
@@ -59,6 +63,8 @@ function StringComponent(props: StringComponentProps) {
       "{props.node}"
     </a>
   ) : (
-    <span className={cx("string-value")}>"{props.node.replaceAll('"', '\\"')}"</span>
+    <span className={cx("string-value")}>
+      "{props.node.replaceAll('"', '\\"')}"
+    </span>
   );
 }
