@@ -92,10 +92,21 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
     downwardsCollapse,
     downwardsExpand,
   }));
+  const showExpandButton = useMemo(() => {
+    if (valueIsLiteral) {
+      return false;
+    }
+    if (type === "object") {
+      return Object.keys(props.value as JsonObject).length > 0;
+    }
+    if (type === "array") {
+      return (props.value as JsonArray).length > 0;
+    }
+  }, [valueIsLiteral, type]);
 
   return (
     <div className={cx("entry")}>
-      {!valueIsLiteral && (
+      {showExpandButton && (
         <ExpandButton onClick={handleExpand} isExpanded={expanded} />
       )}
       {showIdentifier && (

@@ -20,7 +20,7 @@ export const ArrayComponent = memo(forwardRef<CollapsibleRef, ArrayComponentProp
         <span className={cx("array-opener")}>[</span>
         <div
           className={cx("array-block", {
-            "array-block-hidden": !props.expanded,
+            "array-block-hidden": !props.expanded || props.node.length === 0,
           })}
         >
           {props.node.map((prop, index) => (

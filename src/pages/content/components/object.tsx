@@ -120,7 +120,7 @@ export const ObjectComponent = memo(
           />
         )}
         <div
-          className={cx("object-block", { "object-hidden": !props.expanded })}
+          className={cx("object-block", { "object-hidden": !props.expanded || nodesFromRef.length + nodes.length === 0 })}
         >
           {derrefed && nodesFromRef.length && (
             <UrlProvider fullPath={refUrl.origin + refUrl.pathname}>
