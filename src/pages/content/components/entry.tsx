@@ -13,7 +13,7 @@ import {
   IdentifierProps,
   JsonArray,
   JsonObject,
-  Literal
+  Literal,
 } from "@src/types";
 
 import {
@@ -55,7 +55,7 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
 
   const handleExpand = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      if ( e.shiftKey) {
+      if (e.shiftKey) {
         return expanded
           ? childCollapsible.current?.downwardsCollapse()
           : childCollapsible.current?.downwardsExpand();
@@ -106,7 +106,7 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
         }
       }
     }
-    return false
+    return false;
   }, [valueIsLiteral, type]);
 
   return (

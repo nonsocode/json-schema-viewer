@@ -40,7 +40,6 @@
   transform-origin: calc(var(--size) * 0.866025404)
     calc(var(--size) * 0.866025404);
   cursor: pointer;
-
 }
 
 .expand-button.expanded {

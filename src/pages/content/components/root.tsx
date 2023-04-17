@@ -10,5 +10,4 @@ function createApp() {
   createRoot(root).render(<App jsonString={defaultPre.textContent} />);
 }
 
-
-createApp()
+createApp();

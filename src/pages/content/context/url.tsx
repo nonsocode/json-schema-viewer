@@ -11,7 +11,10 @@ export const UrlContext = createContext<UrlContext>({
 type UrlProviderProps = React.PropsWithChildren<{}> & {
   fullPath?: string;
 };
-export function UrlProvider({ fullPath = defaultPath, children }: UrlProviderProps) {
+export function UrlProvider({
+  fullPath = defaultPath,
+  children,
+}: UrlProviderProps) {
   return (
     <UrlContext.Provider value={{ fullPath }}>{children}</UrlContext.Provider>
   );

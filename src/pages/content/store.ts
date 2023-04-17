@@ -23,14 +23,14 @@ export const useCollapsed = createStore<CollapsedStore>((set) => {
         return;
       }
       collapsed.add(id);
-      set(state => state);
+      set((state) => state);
     },
     expand: (id: string) => {
       if (!collapsed.has(id)) {
         return;
       }
       collapsed.delete(id);
-      set(state => state);
+      set((state) => state);
     },
   };
 });

@@ -8,8 +8,11 @@ import { forwardRef, memo } from "react";
 import { useCollapsibles } from "../hooks";
 const cx = classnames.bind(styles);
 
-export const ArrayComponent = memo(forwardRef<CollapsibleRef, ArrayComponentProps>(
-  function ArrayComponent(props, ref) {
+export const ArrayComponent = memo(
+  forwardRef<CollapsibleRef, ArrayComponentProps>(function ArrayComponent(
+    props,
+    ref
+  ) {
     const summary = `${props.node.length} item${
       props.node.length > 1 ? "s" : ""
     }`;
@@ -40,5 +43,5 @@ export const ArrayComponent = memo(forwardRef<CollapsibleRef, ArrayComponentProp
         {!props.expanded && <Summary content={summary} />}
       </>
     );
-  }
-));
+  })
+);

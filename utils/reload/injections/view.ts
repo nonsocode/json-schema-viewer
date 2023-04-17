@@ -19,7 +19,7 @@ export default function addHmrIntoView(watchPath: string) {
   function reload(): void {
     pendingReload = false;
 
-    window.location.reload()
+    window.location.reload();
   }
 
   // reload when tab is visible

@@ -1,8 +1,8 @@
 .array {
-
 }
-.array-opener, .array-closer  {
-  color: white
+.array-opener,
+.array-closer {
+  color: white;
 }
 
 .array-block {
@@ -16,6 +16,6 @@
   bottom: 4px;
   border-inline-start: 1px dotted #ccc;
 }
-.array-block-hidden{
+.array-block-hidden {
   display: none;
 }

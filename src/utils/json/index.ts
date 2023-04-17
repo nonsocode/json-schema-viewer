@@ -1,4 +1,10 @@
-import { JsonArray, JsonObject, JsonType, JsonValue, Literal } from "@src/types";
+import {
+  JsonArray,
+  JsonObject,
+  JsonType,
+  JsonValue,
+  Literal,
+} from "@src/types";
 
 export function getJsonType(value: JsonValue): JsonType {
   if (value === null) {

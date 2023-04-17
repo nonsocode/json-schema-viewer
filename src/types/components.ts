@@ -15,7 +15,6 @@ export type IdentifierProps = {
   id: string;
 };
 
-
 export type ObjectComponentProps = CommonValueProps & {
   node: JsonObject;
   parentPath: string;
@@ -35,11 +34,11 @@ export type ArrayComponentProps = CommonValueProps & {
 export type ExpandedButtonProps = {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   isExpanded: boolean;
-}
+};
 
 export type SummaryProps = {
   content: string;
-}
+};
 
 export type CollapsibleRef = {
   downwardsCollapse(): void;

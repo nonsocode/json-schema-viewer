@@ -14,15 +14,15 @@
   border-inline-start: 1px dotted #ccc;
 }
 
-.ref-button{
+.ref-button {
   margin-inline-start: 15px;
 }
 
-.ref-button:before{
-  content: "deref"
+.ref-button:before {
+  content: "deref";
 }
-.ref-button.toggled:before{
-  content: "re-ref"
+.ref-button.toggled:before {
+  content: "re-ref";
 }
 
 .object-hidden {

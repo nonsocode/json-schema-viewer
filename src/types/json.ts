@@ -10,5 +10,3 @@ export type JsonType =
   | "null"
   | "array"
   | "object";
-
-  
