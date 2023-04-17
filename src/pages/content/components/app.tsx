@@ -10,19 +10,13 @@ const cx = classnames.bind(styles);
 interface AppProps {
   jsonString: string;
 }
-
 export default function App({ jsonString }: AppProps) {
   const tree = useMemo(() => {
-    const startTime = performance.now()
-    console.time('processing')
     try {
       const res = JSON.parse(jsonString) as JsonValue;
       return res;
     } catch (e) {
       console.error(e);
-    }
-    finally {
-      console.timeEnd('processing')
     }
   }, [jsonString]);
 

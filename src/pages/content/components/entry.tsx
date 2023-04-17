@@ -96,12 +96,17 @@ export const Entry = forwardRef<CollapsibleRef, EntryProps>(function Entry(
     if (valueIsLiteral) {
       return false;
     }
-    if (type === "object") {
-      return Object.keys(props.value as JsonObject).length > 0;
-    }
     if (type === "array") {
       return (props.value as JsonArray).length > 0;
     }
+    if (type === "object") {
+      for (const key in props.value as JsonObject) {
+        if (Object.prototype.hasOwnProperty.call(props.value, key)) {
+          return true;
+        }
+      }
+    }
+    return false
   }, [valueIsLiteral, type]);
 
   return (
