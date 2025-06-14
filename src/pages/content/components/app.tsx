@@ -6,6 +6,8 @@ import { ROOT_IDENTIFIER } from "../constants";
 import { jsonTreeCache } from "../cache";
 import { UrlProvider } from "../context/url";
 import { JsonValue } from "@src/types";
+import Editor from "@monaco-editor/react";
+
 const cx = classnames.bind(styles);
 interface AppProps {
   jsonString: string;
@@ -38,6 +40,7 @@ export default function App({ jsonString }: AppProps) {
   return (
     <UrlProvider>
       <div className={cx("json-view-app")}>
+        <Editor />
         <Entry parentPath="" value={tree} isLast identifier={ROOT_IDENTIFIER} />
       </div>
     </UrlProvider>
