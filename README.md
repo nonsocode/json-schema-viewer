@@ -1,89 +1,88 @@
-<div align="center">
-<img src="public/icon-128.png" alt="logo"/>
-<h1> Chrome Extension Boilerplate with<br/>React + Vite + TypeScript</h1>
+# JSON XT
 
-![](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
-![](https://img.shields.io/badge/Typescript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![](https://badges.aleen42.com/src/vitejs.svg)
-![GitHub action badge](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/actions/workflows/build.yml/badge.svg)
-<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/Jonghakseo/chrome-extension-boilerplate-react-viteFactions&count_bg=%23#222222&title_bg=%23#454545&title=😀&edge_flat=true" alt="hits"/>
+A Chrome extension that turns raw JSON responses into an interactive, readable tree view directly in the browser.
 
-> This project is listed in the [Awesome Vite](https://github.com/vitejs/awesome-vite)
+## What this project is
 
-</div>
+JSON XT detects JSON documents (`application/json`, `application/schema+json`, `application/vnd.api+json`, `application/ld+json`, and JSON-looking `text/plain`) and replaces the default `<pre>` output with a React-based inspector.
 
-## Table of Contents
+The goal is simple: make large API responses and JSON Schemas easier to explore without leaving the page.
 
-- [Intro](#intro)
-- [Features](#features)
-- [Installation](#installation)
-  - [Procedures](#procedures)
-- [Screenshots](#screenshots)
-  - [NewTab](#newtab)
-  - [Popup](#popup)
-- [Documents](#documents)
+## Features
 
-## Intro <a name="intro"></a>
+- Interactive tree viewer for objects, arrays, and literals.
+- Expand/collapse controls with subtree shortcuts:
+  - click: toggle current node
+  - `Shift` + click: expand/collapse children
+  - `Alt` + click: expand/collapse full subtree
+- JSON Pointer-friendly node ids, so hash links can scroll to exact fields.
+- URL-aware string rendering:
+  - absolute URLs are clickable
+  - `#` fragments resolve against the current document URL
+- `$ref` dereferencing for JSON Schema-like documents:
+  - fetches referenced documents
+  - resolves pointer targets
+  - caches fetched JSON trees for reuse
+- Manifest V3 extension architecture with content + background scripts.
 
-This boilerplate is made for creating chrome extensions using React and Typescript.
+## Tech stack
 
-> The focus was on improving the build speed and development experience with Vite.
+- React 18 + TypeScript
+- Vite (custom MV3 build setup)
+- Jest + React Testing Library
+- Chrome Extensions Manifest V3
 
-## Features <a name="features"></a>
+## Development
 
-- [React 18](https://reactjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Jest](https://jestjs.io/)
-- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
-- [Vite](https://vitejs.dev/)
-- [SASS](https://sass-lang.com/)
-- [ESLint](https://eslint.org/)
-- [Prettier](https://prettier.io/)
-- [Chrome Extension Manifest Version 3](https://developer.chrome.com/docs/extensions/mv3/intro/)
-- HMR(incomplete)
-  - [Refresh PR](https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/pull/25)
+### Prerequisites
 
-## Installation <a name="installation"></a>
+- Node.js 18+ recommended
+- npm (or yarn)
+- Chrome/Chromium for loading the unpacked extension
 
-### Procedures <a name="procedures"></a>
+### Install
 
-1. Clone this repository.
-2. Change `name` and `description` in package.json => **Auto synchronize with manifest**
-3. Run `yarn install` or `npm i` (check your node version >= 16.6, recommended >= 18)
-4. Run `yarn dev` or `npm run dev`
-5. Load Extension on Chrome
-   1. Open - Chrome browser
-   2. Access - chrome://extensions
-   3. Check - Developer mode
-   4. Find - Load unpacked extension
-   5. Select - `dist` folder in this project (after dev or build)
-6. If you want to build in production, Just run `yarn build` or `npm run build`.
+```bash
+npm install
+```
 
-## Screenshots <a name="screenshots"></a>
+### Run in development mode
 
-### New Tab <a name="newtab"></a>
+```bash
+npm run dev
+```
 
-<img width="971" src="https://user-images.githubusercontent.com/53500778/162631646-cd40976b-b737-43d0-8e6a-6ac090a2e2d4.png">
+This starts the watch build and local reload server used by the extension dev workflow.
 
-### Popup <a name="popup"></a>
+### Build for production
 
-<img width="314" alt="popup" src="https://user-images.githubusercontent.com/53500778/203561728-23517d46-12e3-4139-8a4f-e0b2f22a6ab3.png">
+```bash
+npm run build
+```
 
-## Documents <a name="documents"></a>
+### Run tests
 
-- [Vite Plugin](https://vitejs.dev/guide/api-plugin.html)
-- [ChromeExtension](https://developer.chrome.com/docs/extensions/mv3/)
-- [Rollup](https://rollupjs.org/guide/en/)
-- [Rollup-plugin-chrome-extension](https://www.extend-chrome.dev/rollup-plugin)
+```bash
+npm test
+```
 
----
+## Load the extension in Chrome
 
-## Thanks To
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select this repo’s `dist` folder (generated by `npm run dev` or `npm run build`).
+5. Reload the extension after code changes if needed.
 
-| [Jetbrains](https://jb.gg/OpenSourceSupport)                                                                                               | [Jackson Hong](https://www.linkedin.com/in/j-acks0n/)                                            |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| <img width="100" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" alt="JetBrains Logo (Main) logo."> | <img width="100" src='https://avatars.githubusercontent.com/u/23139754?v=4' alt='Jackson Hong'/> |
+## Project structure (high level)
 
----
+- `src/pages/content/`: JSON detection, app bootstrap, and viewer components.
+- `src/pages/background/`: background service worker and script injection flow.
+- `src/utils/json/`: JSON type helpers + JSON Pointer parsing/resolution.
+- `manifest.ts`: extension manifest source (synced with package metadata).
+- `vite.config.ts`: MV3-oriented Vite/Rollup build configuration.
 
-[Jonghakseo](https://nookpi.tistory.com/)
+## Notes
+
+- Extension name, description, and version are defined in `package.json` and fed into the generated manifest.
+- Content script CSS includes a cache-busting key during build to avoid stale style caching.
